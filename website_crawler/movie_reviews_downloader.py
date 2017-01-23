@@ -1,5 +1,6 @@
 import requests
 import re
+import os
 
 from bs4 import BeautifulSoup
 from unicodedata import normalize
@@ -15,6 +16,7 @@ movie review.
 
 BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
 DATE_REGEX_PATTERN = '\d{2}\sde\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4}' # noqa
+MOVIES_FOLDER = 'movies'
 
 date_regex = re.compile(DATE_REGEX_PATTERN)
 
@@ -105,6 +107,22 @@ def check_for_observation_in_movie_review(movie_review_div,
     return b
 
 
+def create_movie_review_array(movie_review_div, movie_review_final_paragraph):
+    """
+    The first three paragraphs of any movie review are not relevant, since they
+    only possess some break line characters and the name of the movie director
+    and the actors which were on the movie. Therefore, the count starts at at
+    the fourth paragraph.
+    """
+    movie_review = []
+    for paragraph_number in range(2, movie_review_final_paragraph):
+        paragraph = movie_review_div.contents[paragraph_number]
+        if paragraph != '\n':
+            movie_review.append(paragraph.get_text())
+
+    return movie_review
+
+
 def get_movie_review_text(movie_review_html):
     movie_review_div = movie_review_html.find(
         'div', {'class': 'critica-conteudo'})
@@ -122,7 +140,10 @@ def get_movie_review_text(movie_review_html):
         movie_review_div, movie_review_final_paragraph - 1)
 
     if value:
-        movie_review_final_paragraph = movie_review_final_paragraph - 2
+        movie_review_final_paragraph = movie_review_final_paragraph - 1
+
+    return create_movie_review_array(
+        movie_review_div, movie_review_final_paragraph)
 
 
 def get_movie_review(review_id):
@@ -136,14 +157,35 @@ def get_movie_review(review_id):
 
     movie_stars = get_movie_number_of_stars(movie_review_html)
 
-    movie_review_text = get_movie_review_text(movie_review_html)
+    movie_review_array = get_movie_review_text(movie_review_html)
 
-    return (movie_title, movie_stars, movie_review_text)
+    return (movie_title, movie_stars, movie_review_array)
+
+
+def create_movies_folder():
+    if not os.path.exists(MOVIES_FOLDER):
+        os.makedirs(MOVIES_FOLDER)
+
+
+def create_movie_text(movie_title, movie_stars, movie_review_array):
+    movie_title_file = movie_title.lower()
+    movie_title_file = movie_title_file.replace(' ', '_')
+
+    movie_file_path = MOVIES_FOLDER + '/' + movie_title_file + '.txt'
+    with open(movie_file_path, 'w') as movie_file:
+        movie_file.write(movie_title + '\n')
+        movie_file.write(movie_stars + '\n')
+
+        for paragraph in movie_review_array:
+            movie_file.write(paragraph + '\n')
 
 
 def main():
-    review_id = 5918
-    get_movie_review(review_id)
+    review_id = 8348
+    movie_title, movie_stars, movie_review_array = get_movie_review(review_id)
+
+    create_movies_folder()
+    create_movie_text(movie_title, movie_stars, movie_review_array)
 
 
 if __name__ == '__main__':
