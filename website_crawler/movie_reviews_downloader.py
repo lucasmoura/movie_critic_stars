@@ -2,6 +2,7 @@ import requests
 import re
 
 from bs4 import BeautifulSoup
+from unicodedata import normalize
 
 """
 This script is responsible for downloading the movie reviews written by
@@ -48,6 +49,15 @@ def get_date_index_from_movie_review(movie_review_div):
     return index
 
 
+def get_last_paragraph(movie_review_div, movie_review_final_index):
+    last_paragraph = movie_review_div.contents[movie_review_final_index]
+
+    if last_paragraph == '\n':
+        return False
+
+    return last_paragraph.get_text()
+
+
 def check_for_critics_published_in_movie_festivals(movie_review_div,
                                                    movie_review_date_index):
     """
@@ -59,13 +69,40 @@ def check_for_critics_published_in_movie_festivals(movie_review_div,
     This method will be used to check if that is the case. If it is, the movie
     review should not include this paragraph as well.
     """
-    last_paragraph = movie_review_div.contents[movie_review_date_index]
+    last_paragraph = get_last_paragraph(
+        movie_review_div, movie_review_date_index)
 
-    if last_paragraph == '\n':
+    if not last_paragraph:
         return False
 
-    last_paragraph = last_paragraph.get_text()
     return last_paragraph.startswith('Texto originalmente publicado')
+
+
+def check_for_observation_in_movie_review(movie_review_div,
+                                          movie_review_final_index):
+    """
+    Some movie review possess some additional observation at the end of the
+    text, information readers about after credit scenes and any other
+    information that the movie critic think it is relevant. However,
+    this additional info should not be considered on the review itself and
+    should be removed. An example of such paragraph can be seen on the
+    following movie review:
+
+    http://www.cinemaemcena.com.br/Critica/Filme/6049
+
+    This method will be used to check if additional information can be found
+    on the text.
+    """
+    last_paragraph = get_last_paragraph(
+        movie_review_div, movie_review_final_index)
+
+    if not last_paragraph:
+        return False
+
+    b = normalize('NFC', last_paragraph).startswith(
+        normalize('NFC', 'Observa\xe7\xe3o:'))
+
+    return b
 
 
 def get_movie_review_text(movie_review_html):
@@ -81,7 +118,11 @@ def get_movie_review_text(movie_review_html):
     if value:
         movie_review_final_paragraph = movie_review_final_paragraph - 3
 
-    print(movie_review_final_paragraph)
+    value = check_for_observation_in_movie_review(
+        movie_review_div, movie_review_final_paragraph - 1)
+
+    if value:
+        movie_review_final_paragraph = movie_review_final_paragraph - 2
 
 
 def get_movie_review(review_id):
@@ -101,7 +142,7 @@ def get_movie_review(review_id):
 
 
 def main():
-    review_id = 8349
+    review_id = 5918
     get_movie_review(review_id)
 
 
