@@ -79,7 +79,7 @@ def get_movie_review_text(movie_review_html):
 
     movie_review_final_paragraph = movie_review_date_index
     if value:
-        movie_review_final_paragraph = movie_review_final_paragraph - 1
+        movie_review_final_paragraph = movie_review_final_paragraph - 3
 
     print(movie_review_final_paragraph)
 
