@@ -1,6 +1,5 @@
 import requests
 import re
-import json
 
 from bs4 import BeautifulSoup
 
@@ -73,11 +72,10 @@ def get_movie_review_text(movie_review_html):
     movie_review_div = movie_review_html.find(
         'div', {'class': 'critica-conteudo'})
 
-    import ipdb; ipdb.set_trace()
     movie_review_date_index = get_date_index_from_movie_review(
         movie_review_div)
     value = check_for_critics_published_in_movie_festivals(
-        movie_review_div, movie_review_date_index)
+        movie_review_div, movie_review_date_index - 2)
 
     movie_review_final_paragraph = movie_review_date_index
     if value:
@@ -103,7 +101,7 @@ def get_movie_review(review_id):
 
 
 def main():
-    review_id = 8348
+    review_id = 8349
     get_movie_review(review_id)
 
 
