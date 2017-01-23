@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<base href="/"/>
+<meta charset="utf-8">
+<meta content="width=device-width" name="viewport"/>
+<title>O Espetacular Homem-Aranha 2: A Ameaça de Electro | Cinema em Cena</title>
+<link href="favicon.ico" rel="icon" type="image/x-icon"/>
+<link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+<!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+<link href="/_scripts/lionbars-master/css/lionbars.css" rel="stylesheet"/>
+<link href="/Content/rateit.css" rel="stylesheet"/>
+<link href="/_scripts/modal/dist/css/bootstrap-dialog.min.css" rel="stylesheet"/>
+<link href="/_css/bootstrap-dropdown/css/bootstrap-select.min.css" rel="stylesheet"/>
+<link href="/_scripts/captionjs/captionjs.css" rel="stylesheet"/>
+<link href="/_scripts/select2/css/select2.css" rel="stylesheet"/>
+<link href="/_scripts/colorbox/example1/colorbox.css" rel="stylesheet"/>
+<meta content="Page description. No longer than 155 characters." name="description"/>
+<meta content="Cinema em Cena: O mais tradicional portal de cinema da Internet brasileira." itemprop="name">
+<meta content="Cinema em Cena: O mais tradicional portal de cinema da Internet brasileira." itemprop="description">
+<meta content="/uploads/criticas/635693676646051775.jpg" itemprop="image">
+<meta content="summary_large_image" name="twitter:card">
+<meta content="http://www.cinemaemcena.com.br" name="twitter:site">
+<meta content="O Espetacular Homem-Aranha 2: A Ameaça de Electro | Cinema em Cena" name="twitter:title">
+<meta content="Cinema em Cena: O mais tradicional portal de cinema da Internet brasileira." name="twitter:description">
+<meta content="Cinema em Cena" name="twitter:creator">
+<meta content="http://www.cinemaemcena.com.br//uploads/criticas/635693676646051775.jpg" name="twitter:image:src">
+<meta content="O Espetacular Homem-Aranha 2: A Ameaça de Electro | Cinema em Cena" property="og:title"/>
+<meta content="article" property="og:type"/>
+<meta content="/" property="og:url"/>
+<meta content="http://www.cinemaemcena.com.br//uploads/criticas/635693676646051775.jpg" property="og:image"/>
+<meta content="Cinema em Cena: O mais tradicional portal de cinema da Internet brasileira." property="og:description"/>
+<meta content="Cinema em Cena" property="og:site_name"/>
+<meta content="Cinema em Cena" property="article:section"/>
+<script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script async="" defer="" src="https://apis.google.com/js/platform.js">
+            { lang: 'pt-BR' }
+    </script>
+<link href="/_scripts/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+<link href="/_css/cinemaemcena_v3.css" rel="stylesheet"/>
+</meta></meta></meta></meta></meta></meta></meta></meta></meta></meta></head>
+<body>
+<!-- Código do UAI -->
+<!-- Google Tag Manager GA DAMG -->
+<noscript>
+<iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-58MFNT" style="display:none;visibility:hidden" width="0"></iframe>
+</noscript>
+<script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-58MFNT');</script>
+<!-- End Google Tag Manager GA DAMG -->
+<!-- // Código do UAI -->
+<!-- Menu para dispositivos móveis -->
+<nav class="navbar navbar-inverse hidden visible-xs visible-sm">
+<div class="container-fluid">
+<div class="navbar-header">
+<button aria-controls="navbar" aria-expanded="false" class="navbar-toggle collapsed" data-target="#navbar" data-toggle="collapse" type="button">
+<span class="sr-only">Alterar Navegação</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="/Usuario/Login">Bem vindo!</a>
+</div>
+<div class="navbar-collapse collapse" id="navbar">
+<ul class="nav navbar-nav">
+<li><a class="menu-principal" href="/">Principal</a></li>
+<li><a class="menu-criticas" href="/Critica/Index">Críticas</a></li>
+<li><a class="menu-videocasts" href="/Videocast/Index">Videocasts</a></li>
+<li><a class="menu-noticias" href="/Noticia/Index">Notícias</a></li>
+<li><a class="menu-podcasts" href="/Podcast/Index">Podcasts</a></li>
+<li><a class="menu-colunas" href="/Coluna/Index">Colunas</a></li>
+<li><a class="menu-blogs" href="/Blog/Index">Blogs</a></li>
+<li><a href="/Usuario/Login">Acessar o Clube CeC</a></li>
+<li><a href="/Usuario/Registrar">Cadastre-se</a></li>
+</ul>
+</div><!--/.nav-collapse -->
+</div><!--/.container-fluid -->
+</nav>
+<!-- Menu para demais dispositivos -->
+<nav class="container-fluid sem-margem hidden-xs hidden-sm">
+<div class="faixa-topo sem-margem">
+<div align="center" class="col-md-12" id="menu-superior">
+<a class="menu-principal" href="/">Principal</a>
+<a class="menu-criticas" href="/Critica/Index">Críticas</a>
+<a class="menu-videocasts" href="/Videocast/Index">Videocasts</a>
+<a class="menu-noticias" href="/Noticia/Index">Notícias</a>
+<a class="menu-podcasts" href="/Podcast/Index">Podcasts</a>
+<a class="menu-colunas" href="/Coluna/Index">Colunas</a>
+<a class="menu-blogs" href="/Blog/Index">Blogs</a>
+<a class="menu-assinar" href="/CeC/Apoio">Colabore</a>
+</div>
+</div>
+<p align="right"><a href="http://arquivo.CinemaEmCena.com.br" target="_blank"><img border="0" height="25" src="/_imagens/arquivo.png"/></a></p>
+</nav>
+<!-- /Menu -->
+<div class="container">
+<div class="col-md-4"><a href="/"><img src="/_imagens/logo.png"/></a></div>
+<div class="col-md-6 hidden-xs hidden-sm">
+<div class="banner-topo">
+<!-- CeC - Banner Topo -->
+<h5>Publicidade</h5>
+<ins class="adsbygoogle" data-ad-client="ca-pub-0570572332095822" data-ad-slot="1499200479" style="display:inline-block;width:468px;height:60px"></ins>
+<script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+</div>
+</div>
+<div class="col-md-2 bloco-login hidden-sm hidden-xs">
+<div align="center">
+<img src="/_imagens/icone-painelassinante.png"/><br/>
+<a href="/Usuario/Login" id="btnLogin"><span>Acessar o Clube CeC</span></a><br/>
+                            Ainda não é usuário?<br/><a href="/Usuario/Registrar">Cadastre-se</a>!
+                        </div>
+</div>
+</div>
+<div class="container-fluid sem-margem margem-top">
+<div class="faixa">
+<div class="container">
+<div class="col-sm-8">
+<h1>
+<a href="/critica">Críticas</a>
+</h1>
+</div>
+<!-- Formulário de Pesquisa -->
+<div class="col-sm-3" id="pesquisa">
+<form action="/Pesquisa/Palavra" method="get"> <div class="input-group" style="width:200px;">
+<input class="form-control" id="pesquisar" name="pesquisar" placeholder="Pesquisar no site" type="text" value=""/>
+<span class="input-group-btn">
+<button class="btn btn-default btn-pesquisar" type="submit"><span aria-hidden="true" class="glyphicon glyphicon-search "></span></button>
+</span>
+</div>
+</form> </div>
+</div>
+</div>
+</div>
+<div class="container">
+<input id="criticaId" name="criticaId" type="hidden" value="6049"/>
+<div class="col-sm-4">
+<img alt="Poster: O Espetacular Homem-Aranha 2: A Ameaça de Electro" class="img-responsive" src="/uploads/criticas/635703326940981761.jpg">
+<div class="critica-elenco">
+<h3>Direção:</h3>
+<a href="/Pessoa/Lista/10211/marc-webb" target="_blank">Marc Webb</a>
+<h3>Elenco:</h3>
+<a href="/Pessoa/Lista/46/andrew-garfield" target="_blank">Andrew Garfield</a>
+                , 
+                    <a href="/Pessoa/Lista/55/emma-stone" target="_blank">Emma Stone</a>
+                , 
+                    <a href="/Pessoa/Lista/72/jamie-foxx" target="_blank">Jamie Foxx</a>
+                , 
+                    <a href="/Pessoa/Lista/6931/sally-field" target="_blank">Sally Field</a>
+                , 
+                    <a href="/Pessoa/Lista/3091/colm-feore" target="_blank">Colm Feore</a>
+                , 
+                    <a href="/Pessoa/Lista/10212/campbell-scott" target="_blank">Campbell Scott</a>
+                , 
+                    <a href="/Pessoa/Lista/5454/chris-cooper" target="_blank">Chris Cooper</a>
+                , 
+                    <a href="/Pessoa/Lista/2870/embeth-davidtz" target="_blank">Embeth Davidtz</a>
+                , 
+                    <a href="/Pessoa/Lista/2177/marton-csokas" target="_blank">Marton Csokas</a>
+                , 
+                    <a href="/Pessoa/Lista/3384/denis-leary" target="_blank">Denis Leary</a>
+                , 
+                    <a href="/Pessoa/Lista/163/paul-giamatti" target="_blank">Paul Giamatti</a>
+<h3>Roteiro:</h3>
+<a href="/Pessoa/Lista/2583/roberto-orci" target="_blank">Roberto Orci</a>
+                , 
+                    <a href="/Pessoa/Lista/6515/alex-kurtzman" target="_blank">Alex Kurtzman</a>
+                , 
+                    <a href="/Pessoa/Lista/10214/jeff-pinkner" target="_blank">Jeff Pinkner</a>
+<h3>Produção:</h3>
+<a href="/Pessoa/Lista/6779/avi-arad" target="_blank">Avi Arad</a>
+<h3>Fotografia:</h3>
+<a href="/Pessoa/Lista/1427/daniel-mindel" target="_blank">Daniel Mindel</a>
+<h3>Música:</h3>
+<a href="/Pessoa/Lista/1089/hans-zimmer" target="_blank">Hans Zimmer</a>
+<h3>Montagem:</h3>
+<a href="/Pessoa/Lista/500/pietro-scalia" target="_blank">Pietro Scalia</a>
+<h3>Design de Produção:</h3>
+<a href="/Pessoa/Lista/4331/mark-friedberg" target="_blank">Mark Friedberg</a>
+<h3>Figurino:</h3>
+<a href="/Pessoa/Lista/3825/deborah-lynn-scott" target="_blank">Deborah Lynn Scott</a>
+<h3>Direção de Arte:</h3>
+<a href="/Pessoa/Lista/9998/kim-jennings" target="_blank">Kim Jennings</a>
+</div>
+<p> </p>
+<div class="clearfix"></div>
+<p> </p>
+<div class="publicidade">
+<h5>Publicidade</h5>
+<div data-puai-id="parceirouaiformato"></div>
+<script src="http://barra.uai.com.br/parceirouai.js" type="text/javascript"><!-- --></script>
+</div>
+<br/>
+<div class="publicidade hidden-sm hidden-xs">
+<h5>Publicidade</h5>
+<div class="box-publicidade">
+<!-- CeC - Críticas #1 -->
+<ins class="adsbygoogle" data-ad-client="ca-pub-0570572332095822" data-ad-slot="8882866470" style="display:inline-block;width:300px;height:250px"></ins>
+<script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+</div>
+</div>
+<br/>
+<div class="publicidade hidden-sm hidden-xs">
+<h5>Publicidade</h5>
+<div class="box-publicidade">
+<!-- CeC - Críticas #2 -->
+<ins class="adsbygoogle" data-ad-client="ca-pub-0570572332095822" data-ad-slot="1359599671" style="display:inline-block;width:300px;height:250px"></ins>
+<script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+</div>
+</div>
+</img></div>
+<div class="col-sm-8">
+<p><img alt="Banner: O Espetacular Homem-Aranha 2: A Ameaça de Electro" class="caption img-responsive" data-caption="&lt;h3&gt;O Espetacular Homem-Aranha 2: A Ameaça de Electro&lt;/h3&gt;" src="/uploads/criticas/635693676646051775.jpg" title="Banner: O Espetacular Homem-Aranha 2: A Ameaça de Electro" width="100%"/></p>
+<div class="table-responsive">
+<table class="table table-condensed table-striped table-bordered table-shadow">
+<thead>
+<tr>
+<th colspan="2">Datas de Estréia:</th>
+<th align="center" colspan="2">Notas:</th>
+</tr>
+<tr>
+<th width="100">Brasil</th>
+<th width="100">Exterior</th>
+<th width="100">Crítico</th>
+<th width="100">Assinante</th>
+<th>Distribuidora</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+01/05/2014                </td>
+<td>
+                         Não Disponível
+                </td>
+<td><div class="rateit" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="4"></div></td>
+<td><div class="rateit" data-rateit-ispreset="true" data-rateit-readonly="true" data-rateit-value="2"></div></td>
+<td>Sony Pictures</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div align="right">
+<!-- Botão de Compartilhar do Twitter -->
+<div class="botao-share"><a class="twitter-share-button" href="https://twitter.com/share">Tweet</a></div>
+<script type="text/javascript">window.twttr=(function(d,s,id){var t,js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id)){return}js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);return window.twttr||(t={_e:[],ready:function(f){t._e.push(f)}})}(document,"script","twitter-wjs"));</script>
+<!-- Botão de Compartilhar do Google+-->
+<div class="botao-share"><div class="g-plus" data-action="share" data-annotation="bubble"></div></div>
+<!-- Botão de Compartilhar do Facebook -->
+</div>
+<div class="clearfix"></div>
+<div class="critica-autor">
+<h3>Sobre o autor da crítica:</h3>
+<img align="left" class="img-rounded" src="/uploads/usuarios/635549450749712904.jpg" width="80">
+<p>Pablo Villaça, 18 de setembro de 1974, é um crítico cinematográfico brasileiro. É editor do site Cinema em Cena, que criou em 1997, o mais antigo site de cinema no Brasil. Trabalha analisando filmes desde 1994 e colaborou em periódicos nacionais como MovieStar, Sci-Fi News, Sci-Fi Cinema, Replicante e SET. Também é professor de Linguagem e Crítica Cinematográficas.</p>
+</img></div>
+<div class="critica-conteudo">
+<p style="text-align: justify;"><strong>Dirigido por Marc Webb. Roteiro de Alex Kurtzman, Roberto Orci &amp; Jeff Pinkner. </strong><strong>Com: Andrew Garfield, Emma Stone, Jamie Foxx, Sally Field, Colm Feore, Dane DeHaan, Campbell Scott, Chris Cooper, Embeth Davidtz, Marton Csokas, Denis Leary e Paul Giamatti.</strong></p><p style="text-align: justify;">Não sou fã de <strong><em><a href="http://arquivo.cinemaemcena.com.br/plus/modulos/filme/ver.php?cdfilme=5902">O Espetacular Homem-Aranha</a></em></strong>, “reimaginação” (nada imaginativa) que Marc Webb dirigiu há dois anos. Irregular do início ao fim, aquela produção soava como um cínico caça-níqueis que se limitava na maior parte do tempo a copiar a série de Sam Raimi de maneira pedestre apenas para pontualmente se arriscar em modificações desastrosas que serviam apenas para eliminar a já quase inexistente coesão do terrível roteiro. E é justamente por esta razão que a eficácia desta continuação é tão surpreendente, já que, ao contrário de seu antecessor, <em>O Espetacular Homem-Aranha 2</em> salta com segurança do humor ao drama, criando ainda sequências de ação eficazes e finalmente definindo o temperamento de seu herói de maneira inquestionável. E mesmo que ainda empalideça diante de <strong><em><a href="http://arquivo.cinemaemcena.com.br/plus/modulos/filme/ver.php?cdfilme=1607">O Homem-Aranha 2</a></em></strong>, esta continuação é indiscutivelmente melhor que os três outros longas protagonizados por Peter Parker.</p><p style="text-align: justify;">Escrito pelo estreante Jeff Pinkner ao lado dos veteranos Alex Kurtzman e Roberto Orci (responsáveis, entre outras coisas, pelo <em>reboot</em> da série <strong><em><a href="http://arquivo.cinemaemcena.com.br/plus/modulos/filme/ver.php?cdfilme=2091">Star Trek</a></em></strong>), o filme já começa com uma excelente sequência de ação que revela os momentos finais do casal Parker (Scott e Davidtz), saltando, então, para os dias atuais que trazem Peter (Garfield) obviamente se divertindo imensamente como o Homem-Aranha. Inseguro apenas com relação ao seu namoro com Gwen Stacy (Stone, adorável), já que prometeu ao pai da moça que se afastaria, Peter leva a sério seu papel de super-herói, sendo admirado pela população de Nova York por seus repetidos salvamentos espetaculares. Um de seus fãs, aliás, é o carente Max Dillon (Foxx), que, funcionário da Oscorp, acaba se envolvendo num acidente absurdo (claro) que o transforma no perigoso Electro – e quando tudo já parece complicado o bastante, Harry Osborn (DeHaan, um Leonardo DiCaprio demente), velho amigo do herói, retorna à cidade. E todos sabemos como isto irá terminar.</p><p style="text-align: justify;">Hábil ao retratar a alegria do protagonista ao cruzar a cidade pendurado em sua teia, o diretor Marc Webb e o ator Andrew Garfield levam o espectador a experimentar a liberdade sentida por Peter em seus pequenos voos – e o senso de humor do sujeito ao lidar com os bandidos que insistem em enfrentá-lo torna-se, ao contrário do que ocorreu nos quatro capítulos anteriores, sua marca registrada definitiva (e o filme não teme remeter repetidamente à irreverente série de tevê através de seu inesquecível tema, que é assoviado por Parker e usado como <em>ringtone </em>de seu celular). Assim, se no longa passado Garfield parecia oscilar entre os modos deprimidos e as tiradas hilárias dependendo do uso do uniforme (o que parecia transformá-lo numa versão multicolorida de Bruce Wayne/Batman), aqui sua personalidade jovial mostra-se presente mesmo nos momentos nos quais ele precisa se desdobrar para não permitir uma única morte (embaraçando, no processo, o Superman de <strong><em><a href="http://arquivo.cinemaemcena.com.br/plus/modulos/filme/ver.php?cdfilme=5504">O Homem de Aço</a></em></strong>, que ajuda a matar meia Metrópolis).</p><p style="text-align: justify;">Não que o filme em si não tropece em certos momentos ao buscar um tom para a narrativa: quando somos apresentados ao personagem de Jamie Foxx, por exemplo, a composição do ator, a abordagem do diretor e a trilha parecem flertar perigosamente com o mesmo <em>camp </em>que destruiu os <em>Batmans</em> de Joel Schumacher – e mesmo as calças pega-frango usadas pelo sujeito surgem como um exagero da figurinista Deborah Lynn Scott. É por isso que é um alívio perceber como a transição de Dillon de sujeito pacato e inofensivo a vilão perigoso é conduzida com talento por Webb e Foxx, ainda que a trilha continue a pecar pelo exagero e o conceito visual de Electro não seja dos mais criativos.</p><p style="text-align: justify;">Errando também no excesso de diálogos expositivos e no sentimentalismo barato ao incluir um avião em perigo no terceiro ato (com toda a cidade em caos, era mesmo necessário estender os já generosos 142 minutos de projeção com cenas envolvendo controladores de voo e pilotos confusos apenas para entendermos o que já está óbvio?), <em>O Espetacular Homem-Aranha 2</em> ainda escorrega ao trazer tia May (Field) dando ordens em um hospital, como se o próprio filme se esquecesse de que há pouco ela estava apenas começando sua nova carreira. Como se não bastasse, os efeitos digitais usados para criar o super-herói são irregulares, surgindo como uma artificial animação particularmente na cena que o traz dentro de um carro-forte. Além disso, a trilha composta por três profissionais insiste em comentar cada passagem da narrativa, indicando ao público o tom de cena por cena – e até mesmo quando desaparece subitamente, o objetivo é justamente que notemos sua ausência (como no instante em que Gwen comunica algo a Peter).</p><p style="text-align: justify;">Por outro lado, se antes Marc Webb insistia em um tom constantemente sombrio (talvez motivado pela abordagem que transformou o <strong><em><a href="http://arquivo.cinemaemcena.com.br/plus/modulos/filme/ver.php?cdfilme=5077">Batman</a></em></strong><em> </em>de Christopher Nolan em sucesso), aqui ele abraça de vez as cores fortes e a dinâmica dos quadrinhos, o que se revela a decisão correta, já que Peter Parker está longe de ser Bruce Wayne. Mais seguro também na condução da ação, o cineasta é particularmente feliz ao empregar o efeito <em>bullet time</em> para ilustrar o “sentido aranha” do herói, também saindo-se admiravelmente bem no complexo clímax do longa, que permite que compreendamos a geografia das cenas sem que para isso ele tenha que reduzir o ritmo da montagem. Além disso, as várias elipses que cobrem alguns meses da vida de Peter Parker, nos minutos finais de projeção, são ao mesmo tempo elegantes e econômicas.</p><p style="text-align: justify;">Corajoso ao investir num desfecho dramático que se torna ainda mais eficiente graças à leveza que o antecipou por duas horas, <em>O Espetacular Homem-Aranha 2 </em>é o contraponto de todas as promessas não cumpridas de seu antecessor. Não justifica completamente a necessidade de um <em>reboot</em> tão pouco tempo depois da franquia original, é verdade, mas ao menos parece ter sido motivado pelo desejo de divertir – e não só pelo de render mais algumas centenas de milhões de dólares ao seu estúdio às custas da paixão do espectador por seu ótimo protagonista.</p><p style="text-align: justify;"><em>Observação: em algumas cópias, há uma cena de </em>X-Men: Dias de um Futuro Esquecido <em>durante os créditos finais</em>.</p><p style="text-align: justify;"><em>30 de Abril de 2014</em></p>
+</div>
+<!-- Espaço para Links -->
+<div class="critica-links">
+</div>
+<div>
+<p> </p>
+<!--<div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'CinemaEmCenahomologacao'; // required: replace example with your forum shortname
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+            -->
+<h3>Comente!</h3>
+<div class="box-comentario-postagem">
+<div class="alert alert-info">Para comentar <a href="/Usuario/Login">você precisa estar logado!</a></div>
+</div>
+<br/><div class="alert alert-info">Seja o primeiro a comentar!</div>
+<div class="clearfix"></div>
+</div>
+</div>
+</div>
+<p> </p>
+<div class="container-fluid" id="rodape">
+<div class="container rodape">
+<div class="col-sm-2">
+<strong>Cinema em Cena</strong>
+<ul>
+<li>- <a href="/">Principal</a></li>
+<li>- <a href="/Critica/Index">Críticas</a></li>
+<li>- <a href="/Coluna/Index">Colunas</a></li>
+<li>- <a href="/Blog/Index">Blogs</a></li>
+<li>- <a href="/Noticia/Index">Notícias</a></li>
+<li>- <a href="/Podcast/Index">Podcasts</a></li>
+<li>- <a href="/Videocast/Index">Videocasts</a></li>
+</ul>
+</div>
+<div class="col-sm-2">
+<strong>Redes Sociais</strong>
+<ul>
+<li>- <a href="http://forum.CinemaEmCena.com.br" target="_blank">Forum</a></li>
+<li>- <a href="http://twitter.com/CinemaEmCena" target="_blank">Twitter</a></li>
+<li>- <a href="http://facebook.com/CinemaEmCena" target="_blank">Facebook</a></li>
+</ul>
+<strong>Sobre</strong>
+<ul>
+<li>- <a href="#">Anuncie no CeC</a></li>
+<li>- <a href="#">Equipe</a></li>
+<li>- <a href="#">Colunistas</a></li>
+</ul>
+</div>
+<div align="right" class="col-sm-8">
+<a href="http://www.facebook.com/cinemaemcena" target="_blank"><img src="/_imagens/icone-facebook.jpg"/></a>
+<a href="http://www.twitter.com/cinemaemcena" target="_blank"><img src="/_imagens/icone-twitter.jpg"/></a>
+</div>
+<br/> 
+        </div>
+</div>
+<script src="/_scripts/jquery-1.12.1.js"></script>
+<script src="/_scripts/ckeditor/ckeditor.js"></script>
+<script src="/_css/bootstrap-dropdown/js/bootstrap-select.js"></script>
+<script src="/_scripts/meiomask.js"></script>
+<script src="/Scripts/jquery.rateit.min.js"></script>
+<script src="/Scripts/noty/jquery.noty.js"></script>
+<script src="/Scripts/noty/layouts/inline.js"></script>
+<script src="/Scripts/noty/layouts/top.js"></script>
+<script src="/Scripts/noty/layouts/topCenter.js"></script>
+<script src="/Scripts/noty/themes/relax.js"></script>
+<script src="/_scripts/jquery-textfill/source/jquery.textfill.js"></script>
+<script src="/_scripts/lionbars-master/js/jquery.lionbars.0.3.js"></script>
+<script src="/_scripts/instagram.js"></script>
+<script src="/_scripts/select2/js/select2.js"></script>
+<script src="/_scripts/modal/dist/js/bootstrap-dialog.min.js"></script>
+<script src="/_scripts/captionjs/jquery.caption.js"></script>
+<script src="/_scripts/ckeditor/adapters/jquery.js"></script>
+<script src="/_scripts/bootstrap-paginator.min.js"></script>
+<script src="/_scripts/colorbox/jquery.colorbox.js"></script>
+<script src="/_scripts/cec_v3.js"></script>
+<script src="/_scripts/bootstrap/js/bootstrap.js"></script>
+<script src="/_scripts/_critica.js"></script>
+<script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-63855889-1', 'auto');
+        ga('send', 'pageview');
+
+        ga('create', 'UA-36182607-1', { 'name': 'daTracker' });
+        ga('daTracker.send', 'pageview');
+
+        ga('create', 'UA-3637695-1', { 'name': 'dzTracker' });
+        ga('dzTracker.send', 'pageview');
+
+        </script>
+</body>
+</html>
