@@ -22,6 +22,11 @@ def create_movie_review_url(review_id):
     return BASE_URL.format(review_id)
 
 
+def get_movie_number_of_stars(movie_review_html):
+    movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
+    return movie_stars_div.attrs['data-rateit-value']
+
+
 def get_movie_review(review_id):
     movie_url = create_movie_review_url(review_id)
 
@@ -30,6 +35,8 @@ def get_movie_review(review_id):
 
     movie_title = movie_review_html.title.string
     movie_title = format_movie_title(movie_title)
+
+    movie_stars = get_movie_number_of_stars(movie_review_html)
 
 
 def main():
