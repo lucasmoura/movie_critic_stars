@@ -46,7 +46,7 @@ def get_date_index_from_movie_review(movie_review_div):
 
     for number, text in enumerate(movie_review_div.contents):
         if text != '\n':
-            if date_regex.match(text.get_text()):
+            if date_regex.match(text.get_text().strip()):
                 index = number
 
     return index
