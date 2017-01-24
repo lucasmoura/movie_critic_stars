@@ -11,7 +11,8 @@ Mr. Pablo Villaca. This script will store each movie review in unique file.
 This file will possess two lines and the review itself. The first line will
 present the movie title and the second line, the number of stars the movie
 received. Afther these two lines, the rest of the file will be populated by the
-movie review.
+movie review. The last line of the file will possess the date on which the
+movie review was published.
 """
 
 BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
@@ -132,6 +133,9 @@ def get_movie_review_text(movie_review_html):
     value = check_for_critics_published_in_movie_festivals(
         movie_review_div, movie_review_date_index - 2)
 
+    date_paragraph = movie_review_div.contents[movie_review_date_index]
+    date_paragraph = date_paragraph.get_text()
+
     movie_review_final_paragraph = movie_review_date_index
     if value:
         movie_review_final_paragraph = movie_review_final_paragraph - 3
@@ -142,8 +146,11 @@ def get_movie_review_text(movie_review_html):
     if value:
         movie_review_final_paragraph = movie_review_final_paragraph - 1
 
-    return create_movie_review_array(
+    movie_review_array = create_movie_review_array(
         movie_review_div, movie_review_final_paragraph)
+
+    movie_review_array.append(date_paragraph)
+    return movie_review_array
 
 
 def get_movie_review(review_id):
