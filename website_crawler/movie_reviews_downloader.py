@@ -18,6 +18,7 @@ movie review was published.
 BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
 DATE_REGEX_PATTERN = '\d{1,2}\sde\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4}' # noqa
 MOVIES_FOLDER = 'movies'
+MOVIE_CODES_FOLDER = 'website_crawler/files/movie_codes.txt'
 
 date_regex = re.compile(DATE_REGEX_PATTERN)
 
@@ -187,12 +188,28 @@ def create_movie_text(movie_title, movie_stars, movie_review_array):
             movie_file.write(paragraph + '\n')
 
 
-def main():
-    review_id = 8348
-    movie_title, movie_stars, movie_review_array = get_movie_review(review_id)
+def get_all_movie_reviews(movie_codes):
+    for code in movie_codes:
+        print('Downloading movie with code {} ...'.format(code))
+        movie_title, movie_stars, movie_review_array = get_movie_review(code)
+        create_movie_text(movie_title, movie_stars, movie_review_array)
 
+
+def get_movie_codes():
+    movie_codes = []
+
+    with open(MOVIE_CODES_FOLDER, 'r') as movie_codes_file:
+        for code in movie_codes_file.readlines():
+            code = code.strip()
+            movie_codes.append(code)
+
+    return movie_codes
+
+
+def main():
+    movie_codes = get_movie_codes()
     create_movies_folder()
-    create_movie_text(movie_title, movie_stars, movie_review_array)
+    get_all_movie_reviews(movie_codes)
 
 
 if __name__ == '__main__':
