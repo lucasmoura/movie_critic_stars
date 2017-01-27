@@ -16,7 +16,7 @@ movie review was published.
 """
 
 BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
-DATE_REGEX_PATTERN = '\d{1,2}\sde\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4}' # noqa
+DATE_REGEX_PATTERN = '\d{1,2}\s{0,1}de\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4}' # noqa
 MOVIES_FOLDER = 'movies'
 MOVIE_CODES_FOLDER = 'website_crawler/files/movie_codes.txt'
 

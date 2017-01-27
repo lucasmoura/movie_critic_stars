@@ -27,6 +27,16 @@ class WebCrawlerTest(unittest.TestCase):
         self.assertEqual(mrd.get_date_index_from_movie_review(movie_review),
                          expected)
 
+        with open('tests/files/movie_review_5.txt', 'r') as movie_text:
+            movie_review = BeautifulSoup(movie_text, 'html.parser')
+
+        movie_review = movie_review.find(
+            'div', {'class': 'critica-conteudo'})
+
+        expected = 11
+        self.assertEqual(mrd.get_date_index_from_movie_review(movie_review),
+                         expected)
+
     def test_movie_festival_paragraph(self):
         with open('tests/files/movie_review_2.txt', 'r') as movie_text:
             movie_review = BeautifulSoup(movie_text, 'html.parser')
