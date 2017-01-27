@@ -109,10 +109,9 @@ def check_for_observation_in_movie_review(movie_review_div,
     if not last_paragraph:
         return False
 
-    b = normalize('NFC', last_paragraph).startswith(
-        normalize('NFC', 'Observa\xe7\xe3o:'))
+    is_festival_review = festival_regex.match(normalize('NFC', last_paragraph))
 
-    return b
+    return is_festival_review is not None
 
 
 def create_movie_review_array(movie_review_div, movie_review_final_paragraph):
