@@ -160,7 +160,10 @@ def extract_date_from_review(movie_review_paragraph):
 
 
 def create_movie_review_from_single_paragraph(movie_review_div):
-    movie_review_paragraph = movie_review_div.contents[1].get_text()
+    movie_review_paragraph = ''
+    for line in movie_review_div.contents:
+        if line != '\n' and line.get_text():
+            movie_review_paragraph = line.get_text()
 
     movie_review_paragraph = remove_movie_festival_observation(
         movie_review_paragraph)
