@@ -16,11 +16,17 @@ movie review was published.
 """
 
 BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
-DATE_REGEX_PATTERN = '\d{1,2}\s{0,1}de\s(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4}' # noqa
+DATE_REGEX_PATTERN = '(\d{1,2}\s{0,1}de\s(?:Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4})' # noqa
 MOVIES_FOLDER = 'movies'
 MOVIE_CODES_FOLDER = 'website_crawler/files/movie_codes.txt'
+MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
+DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
+WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
 
 date_regex = re.compile(DATE_REGEX_PATTERN)
+festival_regex = re.compile(MOVIE_FESTIVAL_REGEX)
+directed_regex = re.compile(DIRECTED_BY_REGEX)
+with_regex = re.compile(WITH_REGEX)
 
 
 def format_movie_title(movie_title):
@@ -125,19 +131,79 @@ def create_movie_review_array(movie_review_div, movie_review_final_paragraph):
     return movie_review
 
 
+def get_date_paragraph(movie_review_div, movie_review_date_index):
+    if movie_review_date_index == -1:
+        return -1
+
+    return movie_review_div.contents[movie_review_date_index].get_text()
+
+
+def remove_movie_festival_observation(movie_review_paragraph):
+    return festival_regex.sub('', movie_review_paragraph)
+
+
+def remove_directed_by(movie_review_paragraph):
+    return directed_regex.sub('', movie_review_paragraph)
+
+
+def remove_with_actor(movie_review_paragraph):
+    return with_regex.sub('', movie_review_paragraph)
+
+
+def extract_date_from_review(movie_review_paragraph):
+    if date_regex.search(movie_review_paragraph):
+        movie_review_paragraph, date_review, _ = date_regex.split(
+            movie_review_paragraph)
+
+        return (movie_review_paragraph, date_review)
+    else:
+        return [-1, -1]
+
+
+def create_movie_review_from_single_paragraph(movie_review_div):
+    movie_review_paragraph = movie_review_div.contents[1].get_text()
+
+    movie_review_paragraph = remove_movie_festival_observation(
+        movie_review_paragraph)
+
+    movie_review_paragraph = remove_directed_by(movie_review_paragraph)
+    movie_review_paragraph = remove_with_actor(movie_review_paragraph)
+
+    movie_review_paragraph, date_review = extract_date_from_review(
+        movie_review_paragraph)
+
+    if date_review != -1:
+        return [movie_review_paragraph, date_review]
+    else:
+        return -1
+
+
 def get_movie_review_text(movie_review_html):
     movie_review_div = movie_review_html.find(
         'div', {'class': 'critica-conteudo'})
+
+    """
+    Some movie reviews are not in the paragraph format found on most of the
+    text. Therefore, the whole movie review is inside a single paragraph.
+    In that case, a different approach must be taken in order to extract the
+    movie review from it.
+    """
+    if len(movie_review_div.contents) <= 5:
+        return create_movie_review_from_single_paragraph(movie_review_div)
 
     movie_review_date_index = get_date_index_from_movie_review(
         movie_review_div)
     value = check_for_critics_published_in_movie_festivals(
         movie_review_div, movie_review_date_index - 2)
 
-    date_paragraph = movie_review_div.contents[movie_review_date_index]
-    date_paragraph = date_paragraph.get_text()
+    date_paragraph = get_date_paragraph(
+        movie_review_div, movie_review_date_index)
+
+    if date_paragraph == -1:
+        return -1
 
     movie_review_final_paragraph = movie_review_date_index
+
     if value:
         movie_review_final_paragraph = movie_review_final_paragraph - 3
 
@@ -192,7 +258,9 @@ def get_all_movie_reviews(movie_codes):
     for code in movie_codes:
         print('Downloading movie with code {} ...'.format(code))
         movie_title, movie_stars, movie_review_array = get_movie_review(code)
-        create_movie_text(movie_title, movie_stars, movie_review_array)
+
+        if movie_review_array != -1:
+            create_movie_text(movie_title, movie_stars, movie_review_array)
 
 
 def get_movie_codes():
