@@ -2,13 +2,9 @@ import argparse
 import os
 import pickle
 
-from website_crawler.discover_movie_codes import search_for_valid_movie_codes
+from utils.folder import create_folder
+from website_crawler.discover_movies import search_for_valid_movie_codes
 from website_crawler.movie_reviews_downloader import get_all_movie_reviews
-
-
-def create_movies_folder(movies_folder_path):
-    if not os.path.exists(movies_folder_path):
-        os.makedirs(movies_folder_path)
 
 
 def load_movie_codes(movie_codes_path):
@@ -62,7 +58,7 @@ def main():
     movies_folder = user_args['movies_folder']
     movie_codes_path = user_args['movie_codes_path']
 
-    create_movies_folder(movies_folder)
+    create_folder(movies_folder)
 
     if os.path.exists(movie_codes_path):
         print('Loading movie codes from pickle file...')
