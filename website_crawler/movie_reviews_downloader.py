@@ -247,11 +247,20 @@ def create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_ar
 
 
 def get_all_movie_reviews(movie_codes, base_url, movies_folder):
+    invalid_movies = []
     for code in movie_codes:
         print('Downloading movie with code {} ...'.format(code))
         movie_url = create_movie_review_url(base_url, code)
-        movie_title, movie_stars, movie_review_array = get_movie_review(movie_url)
+
+        try:
+            movie_title, movie_stars, movie_review_array = get_movie_review(movie_url)
+        except:
+            invalid_movies.append(code)
+            continue
 
         if movie_review_array != -1:
             movie_file_path = os.path.join(movies_folder, movie_title + '.txt')
             create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_array)
+
+    print('\n Movies that could not be downloaded:\n')
+    print(invalid_movies)
