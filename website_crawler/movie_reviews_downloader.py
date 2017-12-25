@@ -15,10 +15,7 @@ movie review. The last line of the file will possess the date on which the
 movie review was published.
 """
 
-BASE_URL = 'http://www.cinemaemcena.com.br/Critica/Filme/{}'
 DATE_REGEX_PATTERN = '(\d{1,2}\s{0,1}de\s(?:Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4})' # noqa
-MOVIES_FOLDER = 'movies'
-MOVIE_CODES_FOLDER = 'website_crawler/files/movie_codes.txt'
 MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
 DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
 WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
@@ -33,8 +30,8 @@ def format_movie_title(movie_title):
     return movie_title.split('|')[0].strip()
 
 
-def create_movie_review_url(review_id):
-    return BASE_URL.format(review_id)
+def create_movie_review_url(base_url, review_id):
+    return base_url + str(review_id)
 
 
 def get_movie_number_of_stars(movie_review_html):
@@ -222,8 +219,7 @@ def get_movie_review_text(movie_review_html):
     return movie_review_array
 
 
-def get_movie_review(review_id):
-    movie_url = create_movie_review_url(review_id)
+def get_movie_review(movie_url):
 
     response = requests.get(movie_url)
     movie_review_html = BeautifulSoup(response.content, 'html.parser')
@@ -238,16 +234,10 @@ def get_movie_review(review_id):
     return (movie_title, movie_stars, movie_review_array)
 
 
-def create_movies_folder():
-    if not os.path.exists(MOVIES_FOLDER):
-        os.makedirs(MOVIES_FOLDER)
-
-
-def create_movie_text(movie_title, movie_stars, movie_review_array):
+def create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_array):
     movie_title_file = movie_title.lower()
     movie_title_file = movie_title_file.replace(' ', '_')
 
-    movie_file_path = MOVIES_FOLDER + '/' + movie_title_file + '.txt'
     with open(movie_file_path, 'w') as movie_file:
         movie_file.write(movie_title + '\n')
         movie_file.write(movie_stars + '\n')
@@ -256,31 +246,12 @@ def create_movie_text(movie_title, movie_stars, movie_review_array):
             movie_file.write(paragraph + '\n')
 
 
-def get_all_movie_reviews(movie_codes):
+def get_all_movie_reviews(movie_codes, base_url, movies_folder):
     for code in movie_codes:
         print('Downloading movie with code {} ...'.format(code))
-        movie_title, movie_stars, movie_review_array = get_movie_review(code)
+        movie_url = create_movie_review_url(base_url, code)
+        movie_title, movie_stars, movie_review_array = get_movie_review(movie_url)
 
         if movie_review_array != -1:
-            create_movie_text(movie_title, movie_stars, movie_review_array)
-
-
-def get_movie_codes():
-    movie_codes = []
-
-    with open(MOVIE_CODES_FOLDER, 'r') as movie_codes_file:
-        for code in movie_codes_file.readlines():
-            code = code.strip()
-            movie_codes.append(code)
-
-    return movie_codes
-
-
-def main():
-    movie_codes = get_movie_codes()
-    create_movies_folder()
-    get_all_movie_reviews(movie_codes)
-
-
-if __name__ == '__main__':
-    main()
+            movie_file_path = os.path.join(movies_folder, movie_title + '.txt')
+            create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_array)
