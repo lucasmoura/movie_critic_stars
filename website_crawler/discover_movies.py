@@ -30,3 +30,31 @@ def search_for_valid_movie_codes(base_url, start_code, final_code):
             valid_movie_codes.append(code)
 
     return valid_movie_codes
+
+
+def search_for_omelete_urls(base_url, reviews_page_url, start_index, end_index):
+    reviews_page_url += '?pagina={}#filters'
+    review_urls = []
+
+    for index in range(start_index, end_index + 1):
+        reviews_page = reviews_page_url.format(index)
+        review_urls.extend(get_omelete_urls_from_page(reviews_page, base_url))
+
+    return review_urls
+
+
+def get_omelete_urls_from_page(review_page_url, base_url):
+    review_urls = []
+
+    response = requests.get(review_page_url)
+    review_html = BeautifulSoup(response.content, 'html.parser')
+    reviews_div = review_html.findAll('div', {'class': 'call'})
+
+    for review in reviews_div:
+        review_url = review.find('a', href=True)['href']
+        review_url = base_url + review_url
+        review_urls.append(review_url)
+
+        print('Found url: {}'.format(review_url))
+
+    return review_urls
