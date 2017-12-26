@@ -1,9 +1,12 @@
 import requests
 import re
 import os
+import bs4
 
 from bs4 import BeautifulSoup
 from unicodedata import normalize
+
+from utils.folder import create_folder
 
 """
 This script is responsible for downloading the movie reviews written by
@@ -24,6 +27,15 @@ date_regex = re.compile(DATE_REGEX_PATTERN)
 festival_regex = re.compile(MOVIE_FESTIVAL_REGEX)
 directed_regex = re.compile(DIRECTED_BY_REGEX)
 with_regex = re.compile(WITH_REGEX)
+
+
+class MovieReview:
+
+    def __init__(self, movie_title, movie_stars, movie_director, movie_review_array):
+        self.movie_title = movie_title
+        self.movie_stars = movie_stars
+        self.movie_director = movie_director
+        self.movie_review_array = movie_review_array
 
 
 class MovieCrawler:
@@ -48,32 +60,49 @@ class MovieCrawler:
         response = requests.get(movie_url)
         return BeautifulSoup(response.content, 'html.parser')
 
+    def create_star_folders(self):
+        for i in range(1, 6):
+            star_path = os.path.join(self.movies_folder, str(i))
+            create_folder(star_path)
+
     def get_all_movie_reviews(self, movie_codes):
+        self.create_star_folders()
+
         invalid_movies = []
+
         for code in movie_codes:
             print('Downloading movie with code {} ...'.format(code))
             movie_url = self.create_movie_review_url(code)
 
-            # try:
-            #     movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
-            # except:
-            #     invalid_movies.append(code)
-            #     continue
-            movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
+            try:
+                movie_review = self.get_movie_review(movie_url)
+            except:
+                invalid_movies.append(code)
+                continue
+
+            movie_review_array = movie_review.movie_review_array
+            movie_title = movie_review.movie_title
+            movie_stars = movie_review.movie_stars
+            movie_director = movie_review.movie_director
 
             if movie_review_array != -1:
+                original_title = movie_title
                 movie_title = self.parse_movie_title(movie_title)
-                movie_file_path = os.path.join(self.movies_folder, movie_title + '.txt')
-                self.create_movie_text(movie_file_path, movie_title,
-                                       movie_stars, movie_review_array)
+                movie_file_path = os.path.join(self.movies_folder, movie_stars)
+                movie_file_path = os.path.join(movie_file_path, movie_title + '.txt')
+                self.create_movie_text(movie_file_path, movie_title, original_title,
+                                       movie_director, movie_review_array)
+            else:
+                invalid_movies.append(code)
 
         print('\n Movies that could not be downloaded:\n')
         print(invalid_movies)
 
-    def create_movie_text(self, movie_file_path, movie_title, movie_stars, movie_review_array):
+    def create_movie_text(self, movie_file_path, movie_title, original_title, movie_director,
+                          movie_review_array):
         with open(movie_file_path, 'w') as movie_file:
-            movie_file.write(movie_title + '\n')
-            movie_file.write(movie_stars + '\n')
+            movie_file.write(original_title + '\n')
+            movie_file.write(movie_director + '\n')
 
             for paragraph in movie_review_array:
                 movie_file.write(paragraph + '\n')
@@ -275,20 +304,84 @@ class OmeleteCrawler(MovieCrawler):
 
         movie_title = self.get_movie_title(movie_review_html)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
-        movie_review_array = self.create_movie_review_array(movie_review_html)
+        movie_director = self.get_movie_director(movie_review_html)
 
-        return movie_title, movie_stars, movie_review_array
+        if movie_title == -1 or movie_stars == -1:
+            movie_review_array = -1
+        else:
+            movie_review_array = self.create_movie_review_array(movie_review_html)
 
-    def parse_movie_title(self, movie_title):
-        raise NotImplementedError
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array)
+
+        return movie_review
+
+    def check_text(self, text):
+            if not text:
+                return False
+
+            if text.startswith('Leia mais'):
+                return False
+
+            if text.endswith('filme est\xE1 passando'):
+                return False
+
+            if text.endswith('filme est\xE1 sendo exibido'):
+                return False
+
+            if 'Cinemas e hor\xE1rios' in text:
+                return False
+
+            if text.endswith('Clipes'):
+                return False
+
+            if text.endswith('Trailer legendado'):
+                return False
+
+            if 'Omelete entrevista' in text:
+                return False
+
+            if 'Omelete Entrevista' in text:
+                return False
+
+            if '| Assista' in text:
+                return False
+
+            if '| Cinemas' in text:
+                return False
+
+            if '| Trailer' in text:
+                return False
+
+            if '| Entrevistas' in text:
+                return False
+
+            if 'Acompanhe as nossas' in text:
+                return False
+
+            if 'Veja clipes' in text:
+                return False
+
+            if 'Baixe of filmes' in text:
+                return False
+
+            if text.startswith('Confira nosso especial'):
+                return False
+
+            return True
 
     def create_movie_review_array(self, movie_review_html):
         movie_review_div = self.get_movie_review_div(movie_review_html)
         movie_review_array = []
 
         for paragraph in movie_review_div.contents:
-            if paragraph != '\n':
+            if type(paragraph) != bs4.element.NavigableString:
                 text = paragraph.get_text()
+            else:
+                text = paragraph.replace('\n', ' ').strip()
+
+            text = text.replace('\n', ' ').strip()
+
+            if self.check_text(text):
                 movie_review_array.append(text)
 
         review_date = self.get_movie_review_date(movie_review_html)
@@ -304,12 +397,36 @@ class OmeleteCrawler(MovieCrawler):
         return review_date.contents[0].strip()
 
     def get_movie_number_of_stars(self, movie_review_html):
+        sem_nota = movie_review_html.find('span', {'class': 'nota-texto'}).contents[0]
+
+        if sem_nota and 'Sem nota' in sem_nota:
+            return -1
+
         review_rate = movie_review_html.find('span', itemprop='ratingValue')
         return review_rate['content']
 
     def get_movie_title(self, movie_review_html):
-        movie_title = movie_review_html.find('div', {'class': 'original-title'})
-        movie_title = movie_title.contents[0].strip()
+        movie_title = movie_review_html.find('div', {'class': 'title'})
 
-        # Remove parenthesis from movie title
-        return movie_title[1:-1]
+        if not movie_title:
+            return -1
+
+        try:
+            movie_title = movie_title['content']
+        except:
+            return -1
+
+        movie_title = movie_title.replace('/', '')
+
+        return movie_title
+
+    def get_movie_director(self, movie_review_html):
+        movie_director = movie_review_html.find('div', itemprop='director')
+
+        if movie_director:
+            movie_director = movie_director.find('span', itemprop='name')['content']
+
+        if not movie_director:
+            return 'Empty'
+
+        return movie_director.strip()
