@@ -2,7 +2,7 @@ import requests
 
 from bs4 import BeautifulSoup
 
-from website_crawler.movie_reviews_downloader import get_movie_number_of_stars
+from website_crawler.movie_reviews_downloader import CinemaEmCenaCrawler
 
 """
     This script will be used to search for on the cinema em cena website
@@ -18,13 +18,14 @@ from website_crawler.movie_reviews_downloader import get_movie_number_of_stars
 
 def search_for_valid_movie_codes(base_url, start_code, final_code):
     valid_movie_codes = []
+    cec = CinemaEmCenaCrawler(base_url, None)
 
     for code in range(start_code, final_code+1):
         print('Testing code {} ...'.format(code))
         response = requests.get(base_url + str(code))
 
         movie_review_html = BeautifulSoup(response.content, 'html.parser')
-        movie_stars = get_movie_number_of_stars(movie_review_html)
+        movie_stars = cec.get_movie_number_of_stars(movie_review_html)
 
         if movie_stars:
             valid_movie_codes.append(code)

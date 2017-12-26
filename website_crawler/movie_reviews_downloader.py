@@ -26,241 +26,240 @@ directed_regex = re.compile(DIRECTED_BY_REGEX)
 with_regex = re.compile(WITH_REGEX)
 
 
-def format_movie_title(movie_title):
-    return movie_title.split('|')[0].strip()
+class MovieCrawler:
 
+    def __init__(self, base_url, movies_folder):
+        self.base_url = base_url
+        self.movies_folder = movies_folder
 
-def create_movie_review_url(base_url, review_id):
-    return base_url + str(review_id)
+    def create_movie_review_url(self, code):
+        raise NotImplementedError
 
+    def get_movie_review(self, movie_url):
+        raise NotImplementedError
 
-def get_movie_number_of_stars(movie_review_html):
-    movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
-    return movie_stars_div.attrs['data-rateit-value']
+    def parse_movie_title(self, movie_title):
+        raise NotImplementedError
 
+    def get_all_movie_reviews(self, movie_codes):
+        invalid_movies = []
+        for code in movie_codes:
+            print('Downloading movie with code {} ...'.format(code))
+            movie_url = self.create_movie_review_url(code)
 
-def get_date_index_from_movie_review(movie_review_div):
-    """
-        The movie reviews found on the website have the full text inside a
-        single HTML div. All movie reviews possess a paragraph containing the
-        date when that particular movie review was written. This will be used
-        as way to know when the movie review has ended.
-    """
-    index = -1
+            try:
+                movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
+            except:
+                invalid_movies.append(code)
+                continue
 
-    for number, text in enumerate(movie_review_div.contents):
-        if text != '\n':
-            if date_regex.match(text.get_text().strip()):
-                index = number
+            if movie_review_array != -1:
+                movie_title = self.parse_movie_title(movie_title)
+                movie_file_path = os.path.join(self.movies_folder, movie_title + '.txt')
+                self.create_movie_text(movie_file_path, movie_title,
+                                       movie_stars, movie_review_array)
 
-    return index
+        print('\n Movies that could not be downloaded:\n')
+        print(invalid_movies)
 
+    def create_movie_text(self, movie_file_path, movie_title, movie_stars, movie_review_array):
+        with open(movie_file_path, 'w') as movie_file:
+            movie_file.write(movie_title + '\n')
+            movie_file.write(movie_stars + '\n')
 
-def get_last_paragraph(movie_review_div, movie_review_final_index):
-    last_paragraph = movie_review_div.contents[movie_review_final_index]
+            for paragraph in movie_review_array:
+                movie_file.write(paragraph + '\n')
 
-    if last_paragraph == '\n':
-        return False
 
-    return last_paragraph.get_text()
+class CinemaEmCenaCrawler(MovieCrawler):
 
+    def get_movie_review(self, movie_url):
 
-def check_for_critics_published_in_movie_festivals(movie_review_div,
-                                                   movie_review_date_index):
-    """
-    When a movie review was produced during a movie festival, there is another
-    paragraph inside the movie review, like the following example:
+        response = requests.get(movie_url)
+        movie_review_html = BeautifulSoup(response.content, 'html.parser')
 
-    'Texto originalmente publicado durante a cobertura do Festival de...'
+        movie_title = movie_review_html.title.string
+        movie_title = self.format_movie_title(movie_title)
 
-    This method will be used to check if that is the case. If it is, the movie
-    review should not include this paragraph as well.
-    """
-    last_paragraph = get_last_paragraph(
-        movie_review_div, movie_review_date_index)
+        movie_stars = self.get_movie_number_of_stars(movie_review_html)
 
-    if not last_paragraph:
-        return False
+        movie_review_array = self.get_movie_review_text(movie_review_html)
 
-    return last_paragraph.startswith('Texto originalmente publicado')
+        return (movie_title, movie_stars, movie_review_array)
 
+    def parse_movie_title(self, movie_title):
+        movie_title = movie_title.lower()
+        movie_title = movie_title.replace(' ', '_')
 
-def check_for_observation_in_movie_review(movie_review_div,
-                                          movie_review_final_index):
-    """
-    Some movie review possess some additional observation at the end of the
-    text, information readers about after credit scenes and any other
-    information that the movie critic think it is relevant. However,
-    this additional info should not be considered on the review itself and
-    should be removed. An example of such paragraph can be seen on the
-    following movie review:
+        return movie_title
 
-    http://www.cinemaemcena.com.br/Critica/Filme/6049
+    def format_movie_title(self, movie_title):
+        return movie_title.split('|')[0].strip()
 
-    This method will be used to check if additional information can be found
-    on the text.
-    """
-    last_paragraph = get_last_paragraph(
-        movie_review_div, movie_review_final_index)
+    def create_movie_review_url(self, review_id):
+        return self.base_url + str(review_id)
 
-    if not last_paragraph:
-        return False
+    def get_movie_number_of_stars(self, movie_review_html):
+        movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
+        return movie_stars_div.attrs['data-rateit-value']
 
-    is_festival_review = festival_regex.match(normalize('NFC', last_paragraph))
+    def get_date_index_from_movie_review(self, movie_review_div):
+        """
+            The movie reviews found on the website have the full text inside a
+            single HTML div. All movie reviews possess a paragraph containing the
+            date when that particular movie review was written. This will be used
+            as way to know when the movie review has ended.
+        """
+        index = -1
 
-    return is_festival_review is not None
+        for number, text in enumerate(movie_review_div.contents):
+            if text != '\n':
+                if date_regex.match(text.get_text().strip()):
+                    index = number
 
+        return index
 
-def create_movie_review_array(movie_review_div, movie_review_final_paragraph):
-    """
-    The first three paragraphs of any movie review are not relevant, since they
-    only possess some break line characters and the name of the movie director
-    and the actors which were on the movie. Therefore, the count starts at at
-    the fourth paragraph.
-    """
-    movie_review = []
-    for paragraph_number in range(2, movie_review_final_paragraph):
-        paragraph = movie_review_div.contents[paragraph_number]
-        if paragraph != '\n':
-            movie_review.append(paragraph.get_text())
+    def get_last_paragraph(self, movie_review_div, movie_review_final_index):
+        last_paragraph = movie_review_div.contents[movie_review_final_index]
 
-    return movie_review
+        if last_paragraph == '\n':
+            return False
 
+        return last_paragraph.get_text()
 
-def get_date_paragraph(movie_review_div, movie_review_date_index):
-    if movie_review_date_index == -1:
-        return -1
+    def check_for_critics_published_in_movie_festivals(self, movie_review_div,
+                                                       movie_review_date_index):
+        """
+        When a movie review was produced during a movie festival, there is another
+        paragraph inside the movie review, like the following example:
 
-    return movie_review_div.contents[movie_review_date_index].get_text()
+        'Texto originalmente publicado durante a cobertura do Festival de...'
 
+        This method will be used to check if that is the case. If it is, the movie
+        review should not include this paragraph as well.
+        """
+        last_paragraph = self.get_last_paragraph(movie_review_div, movie_review_date_index)
+
+        if not last_paragraph:
+            return False
 
-def remove_movie_festival_observation(movie_review_paragraph):
-    return festival_regex.sub('', movie_review_paragraph)
+        return last_paragraph.startswith('Texto originalmente publicado')
 
+    def check_for_observation_in_movie_review(self, movie_review_div, movie_review_final_index):
+        """
+        Some movie review possess some additional observation at the end of the
+        text, information readers about after credit scenes and any other
+        information that the movie critic think it is relevant. However,
+        this additional info should not be considered on the review itself and
+        should be removed. An example of such paragraph can be seen on the
+        following movie review:
 
-def remove_directed_by(movie_review_paragraph):
-    return directed_regex.sub('', movie_review_paragraph)
+        http://www.cinemaemcena.com.br/Critica/Filme/6049
 
+        This method will be used to check if additional information can be found
+        on the text.
+        """
+        last_paragraph = self.get_last_paragraph(movie_review_div, movie_review_final_index)
 
-def remove_with_actor(movie_review_paragraph):
-    return with_regex.sub('', movie_review_paragraph)
+        if not last_paragraph:
+            return False
 
+        is_festival_review = festival_regex.match(normalize('NFC', last_paragraph))
 
-def extract_date_from_review(movie_review_paragraph):
-    if date_regex.search(movie_review_paragraph):
-        movie_review_paragraph, date_review, _ = date_regex.split(
-            movie_review_paragraph)
+        return is_festival_review is not None
 
-        return (movie_review_paragraph, date_review)
-    else:
-        return [-1, -1]
+    def create_movie_review_array(self, movie_review_div, movie_review_final_paragraph):
+        """
+        The first three paragraphs of any movie review are not relevant, since they
+        only possess some break line characters and the name of the movie director
+        and the actors which were on the movie. Therefore, the count starts at at
+        the fourth paragraph.
+        """
+        movie_review = []
+        for paragraph_number in range(2, movie_review_final_paragraph):
+            paragraph = movie_review_div.contents[paragraph_number]
+            if paragraph != '\n':
+                movie_review.append(paragraph.get_text())
 
+        return movie_review
 
-def create_movie_review_from_single_paragraph(movie_review_div):
-    movie_review_paragraph = ''
-    for line in movie_review_div.contents:
-        if line != '\n' and line.get_text():
-            movie_review_paragraph = line.get_text()
+    def get_date_paragraph(self, movie_review_div, movie_review_date_index):
+        if movie_review_date_index == -1:
+            return -1
 
-    movie_review_paragraph = remove_movie_festival_observation(
-        movie_review_paragraph)
+        return movie_review_div.contents[movie_review_date_index].get_text()
 
-    movie_review_paragraph = remove_directed_by(movie_review_paragraph)
-    movie_review_paragraph = remove_with_actor(movie_review_paragraph)
+    def remove_movie_festival_observation(self, movie_review_paragraph):
+        return festival_regex.sub('', movie_review_paragraph)
 
-    movie_review_paragraph, date_review = extract_date_from_review(
-        movie_review_paragraph)
+    def remove_directed_by(self, movie_review_paragraph):
+        return directed_regex.sub('', movie_review_paragraph)
 
-    if date_review != -1:
-        return [movie_review_paragraph, date_review]
-    else:
-        return -1
+    def remove_with_actor(self, movie_review_paragraph):
+        return with_regex.sub('', movie_review_paragraph)
 
+    def extract_date_from_review(self, movie_review_paragraph):
+        if date_regex.search(movie_review_paragraph):
+            movie_review_paragraph, date_review, _ = date_regex.split(
+                movie_review_paragraph)
 
-def get_movie_review_text(movie_review_html):
-    movie_review_div = movie_review_html.find(
-        'div', {'class': 'critica-conteudo'})
+            return (movie_review_paragraph, date_review)
+        else:
+            return [-1, -1]
 
-    """
-    Some movie reviews are not in the paragraph format found on most of the
-    text. Therefore, the whole movie review is inside a single paragraph.
-    In that case, a different approach must be taken in order to extract the
-    movie review from it.
-    """
-    if len(movie_review_div.contents) <= 5:
-        return create_movie_review_from_single_paragraph(movie_review_div)
+    def create_movie_review_from_single_paragraph(self, movie_review_div):
+        movie_review_paragraph = ''
+        for line in movie_review_div.contents:
+            if line != '\n' and line.get_text():
+                movie_review_paragraph = line.get_text()
 
-    movie_review_date_index = get_date_index_from_movie_review(
-        movie_review_div)
-    value = check_for_critics_published_in_movie_festivals(
-        movie_review_div, movie_review_date_index - 2)
+        movie_review_paragraph = self.remove_movie_festival_observation(movie_review_paragraph)
 
-    date_paragraph = get_date_paragraph(
-        movie_review_div, movie_review_date_index)
+        movie_review_paragraph = self.remove_directed_by(movie_review_paragraph)
+        movie_review_paragraph = self.remove_with_actor(movie_review_paragraph)
 
-    if date_paragraph == -1:
-        return -1
+        movie_review_paragraph, date_review = self.extract_date_from_review(movie_review_paragraph)
 
-    movie_review_final_paragraph = movie_review_date_index
+        if date_review != -1:
+            return [movie_review_paragraph, date_review]
+        else:
+            return -1
 
-    if value:
-        movie_review_final_paragraph = movie_review_final_paragraph - 3
+    def get_movie_review_text(self, movie_review_html):
+        movie_review_div = movie_review_html.find(
+            'div', {'class': 'critica-conteudo'})
 
-    value = check_for_observation_in_movie_review(
-        movie_review_div, movie_review_final_paragraph - 1)
+        """
+        Some movie reviews are not in the paragraph format found on most of the
+        text. Therefore, the whole movie review is inside a single paragraph.
+        In that case, a different approach must be taken in order to extract the
+        movie review from it.
+        """
+        if len(movie_review_div.contents) <= 5:
+            return self.create_movie_review_from_single_paragraph(movie_review_div)
 
-    if value:
-        movie_review_final_paragraph = movie_review_final_paragraph - 1
+        movie_review_date_index = self.get_date_index_from_movie_review(movie_review_div)
+        value = self.check_for_critics_published_in_movie_festivals(
+            movie_review_div, movie_review_date_index - 2)
 
-    movie_review_array = create_movie_review_array(
-        movie_review_div, movie_review_final_paragraph)
+        date_paragraph = self.get_date_paragraph(movie_review_div, movie_review_date_index)
 
-    movie_review_array.append(date_paragraph)
-    return movie_review_array
+        if date_paragraph == -1:
+            return -1
 
+        movie_review_final_paragraph = movie_review_date_index
 
-def get_movie_review(movie_url):
+        if value:
+            movie_review_final_paragraph = movie_review_final_paragraph - 3
 
-    response = requests.get(movie_url)
-    movie_review_html = BeautifulSoup(response.content, 'html.parser')
+        value = self.check_for_observation_in_movie_review(
+            movie_review_div, movie_review_final_paragraph - 1)
 
-    movie_title = movie_review_html.title.string
-    movie_title = format_movie_title(movie_title)
+        if value:
+            movie_review_final_paragraph = movie_review_final_paragraph - 1
 
-    movie_stars = get_movie_number_of_stars(movie_review_html)
+        movie_review_array = self.create_movie_review_array(movie_review_div,
+                                                            movie_review_final_paragraph)
 
-    movie_review_array = get_movie_review_text(movie_review_html)
-
-    return (movie_title, movie_stars, movie_review_array)
-
-
-def create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_array):
-    movie_title_file = movie_title.lower()
-    movie_title_file = movie_title_file.replace(' ', '_')
-
-    with open(movie_file_path, 'w') as movie_file:
-        movie_file.write(movie_title + '\n')
-        movie_file.write(movie_stars + '\n')
-
-        for paragraph in movie_review_array:
-            movie_file.write(paragraph + '\n')
-
-
-def get_all_movie_reviews(movie_codes, base_url, movies_folder):
-    invalid_movies = []
-    for code in movie_codes:
-        print('Downloading movie with code {} ...'.format(code))
-        movie_url = create_movie_review_url(base_url, code)
-
-        try:
-            movie_title, movie_stars, movie_review_array = get_movie_review(movie_url)
-        except:
-            invalid_movies.append(code)
-            continue
-
-        if movie_review_array != -1:
-            movie_file_path = os.path.join(movies_folder, movie_title + '.txt')
-            create_movie_text(movie_file_path, movie_title, movie_stars, movie_review_array)
-
-    print('\n Movies that could not be downloaded:\n')
-    print(invalid_movies)
+        movie_review_array.append(date_paragraph)
+        return movie_review_array

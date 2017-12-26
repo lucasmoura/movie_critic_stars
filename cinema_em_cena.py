@@ -4,7 +4,7 @@ import pickle
 
 from utils.folder import create_folder
 from website_crawler.discover_movies import search_for_valid_movie_codes
-from website_crawler.movie_reviews_downloader import get_all_movie_reviews
+from website_crawler.movie_reviews_downloader import CinemaEmCenaCrawler
 
 
 def load_movie_codes(movie_codes_path):
@@ -68,7 +68,8 @@ def main():
         movie_codes = search_for_valid_movie_codes(base_url, start_index, end_index)
         save_movie_codes(movie_codes, movie_codes_path)
 
-    get_all_movie_reviews(movie_codes, base_url, movies_folder)
+    cinema_em_cena = CinemaEmCenaCrawler(base_url, movies_folder)
+    cinema_em_cena.get_all_movie_reviews(movie_codes)
 
 
 if __name__ == '__main__':
