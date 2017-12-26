@@ -39,7 +39,14 @@ class MovieCrawler:
         raise NotImplementedError
 
     def parse_movie_title(self, movie_title):
-        raise NotImplementedError
+        movie_title = movie_title.lower()
+        movie_title = movie_title.replace(' ', '_')
+
+        return movie_title
+
+    def parse_response(self, movie_url):
+        response = requests.get(movie_url)
+        return BeautifulSoup(response.content, 'html.parser')
 
     def get_all_movie_reviews(self, movie_codes):
         invalid_movies = []
@@ -47,11 +54,12 @@ class MovieCrawler:
             print('Downloading movie with code {} ...'.format(code))
             movie_url = self.create_movie_review_url(code)
 
-            try:
-                movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
-            except:
-                invalid_movies.append(code)
-                continue
+            # try:
+            #     movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
+            # except:
+            #     invalid_movies.append(code)
+            #     continue
+            movie_title, movie_stars, movie_review_array = self.get_movie_review(movie_url)
 
             if movie_review_array != -1:
                 movie_title = self.parse_movie_title(movie_title)
@@ -74,9 +82,7 @@ class MovieCrawler:
 class CinemaEmCenaCrawler(MovieCrawler):
 
     def get_movie_review(self, movie_url):
-
-        response = requests.get(movie_url)
-        movie_review_html = BeautifulSoup(response.content, 'html.parser')
+        movie_review_html = self.parse_response(movie_url)
 
         movie_title = movie_review_html.title.string
         movie_title = self.format_movie_title(movie_title)
@@ -86,12 +92,6 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_review_array = self.get_movie_review_text(movie_review_html)
 
         return (movie_title, movie_stars, movie_review_array)
-
-    def parse_movie_title(self, movie_title):
-        movie_title = movie_title.lower()
-        movie_title = movie_title.replace(' ', '_')
-
-        return movie_title
 
     def format_movie_title(self, movie_title):
         return movie_title.split('|')[0].strip()
@@ -172,7 +172,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         """
         The first three paragraphs of any movie review are not relevant, since they
         only possess some break line characters and the name of the movie director
-        and the actors which were on the movie. Therefore, the count starts at at
+        and the actors which were on the movie. Therefore, the count starts at
         the fourth paragraph.
         """
         movie_review = []
@@ -263,3 +263,53 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         movie_review_array.append(date_paragraph)
         return movie_review_array
+
+
+class OmeleteCrawler(MovieCrawler):
+
+    def create_movie_review_url(self, code):
+        return code
+
+    def get_movie_review(self, movie_url):
+        movie_review_html = self.parse_response(movie_url)
+
+        movie_title = self.get_movie_title(movie_review_html)
+        movie_stars = self.get_movie_number_of_stars(movie_review_html)
+        movie_review_array = self.create_movie_review_array(movie_review_html)
+
+        return movie_title, movie_stars, movie_review_array
+
+    def parse_movie_title(self, movie_title):
+        raise NotImplementedError
+
+    def create_movie_review_array(self, movie_review_html):
+        movie_review_div = self.get_movie_review_div(movie_review_html)
+        movie_review_array = []
+
+        for paragraph in movie_review_div.contents:
+            if paragraph != '\n':
+                text = paragraph.get_text()
+                movie_review_array.append(text)
+
+        review_date = self.get_movie_review_date(movie_review_html)
+        movie_review_array.append(review_date)
+
+        return movie_review_array
+
+    def get_movie_review_div(self, movie_review_html):
+        return movie_review_html.find('div', itemprop='reviewBody')
+
+    def get_movie_review_date(self, movie_review_html):
+        review_date = movie_review_html.find('span', itemprop='datePublished')
+        return review_date.contents[0].strip()
+
+    def get_movie_number_of_stars(self, movie_review_html):
+        review_rate = movie_review_html.find('span', itemprop='ratingValue')
+        return review_rate['content']
+
+    def get_movie_title(self, movie_review_html):
+        movie_title = movie_review_html.find('div', {'class': 'original-title'})
+        movie_title = movie_title.contents[0].strip()
+
+        # Remove parenthesis from movie title
+        return movie_title[1:-1]

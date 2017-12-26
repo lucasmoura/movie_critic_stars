@@ -4,6 +4,7 @@ import pickle
 
 from utils.folder import create_folder
 from website_crawler.discover_movies import search_for_omelete_urls
+from website_crawler.movie_reviews_downloader import OmeleteCrawler
 
 
 def load_movie_codes(movie_urls_path):
@@ -72,6 +73,9 @@ def main():
         print('Generating movie codes...')
         movie_urls = search_for_omelete_urls(base_url, reviews_page_url, start_index, end_index)
         save_movie_codes(movie_urls, movie_urls_path)
+
+    omelete = OmeleteCrawler(base_url, movies_folder)
+    omelete.get_all_movie_reviews(movie_urls)
 
 
 if __name__ == '__main__':
