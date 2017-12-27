@@ -115,18 +115,32 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         movie_title = movie_review_html.title.string
         movie_title = self.format_movie_title(movie_title)
-
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
-
+        movie_director = self.get_movie_director(movie_review_html)
         movie_review_array = self.get_movie_review_text(movie_review_html)
 
-        return (movie_title, movie_stars, movie_review_array)
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array)
+
+        return movie_review
 
     def format_movie_title(self, movie_title):
         return movie_title.split('|')[0].strip()
 
     def create_movie_review_url(self, review_id):
         return self.base_url + str(review_id)
+
+    def get_movie_director(self, movie_review_html):
+        review_cast = movie_review_html.find('div', {'class': 'critica-elenco'})
+
+        if review_cast:
+            review_director = review_cast.find('a', href=True)
+        else:
+            review_director = None
+
+        if review_director:
+            return review_director.get_text()
+        else:
+            return 'Empty'
 
     def get_movie_number_of_stars(self, movie_review_html):
         movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
@@ -208,7 +222,10 @@ class CinemaEmCenaCrawler(MovieCrawler):
         for paragraph_number in range(2, movie_review_final_paragraph):
             paragraph = movie_review_div.contents[paragraph_number]
             if paragraph != '\n':
-                movie_review.append(paragraph.get_text())
+                paragraph = paragraph.get_text().strip()
+
+                if paragraph:
+                    movie_review.append(paragraph)
 
         return movie_review
 
@@ -234,7 +251,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
             return (movie_review_paragraph, date_review)
         else:
-            return [-1, -1]
+            return (movie_review_paragraph, -1)
 
     def create_movie_review_from_single_paragraph(self, movie_review_div):
         movie_review_paragraph = ''
@@ -252,7 +269,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         if date_review != -1:
             return [movie_review_paragraph, date_review]
         else:
-            return -1
+            return movie_review_paragraph
 
     def get_movie_review_text(self, movie_review_html):
         movie_review_div = movie_review_html.find(
@@ -273,10 +290,10 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         date_paragraph = self.get_date_paragraph(movie_review_div, movie_review_date_index)
 
-        if date_paragraph == -1:
-            return -1
-
         movie_review_final_paragraph = movie_review_date_index
+
+        if date_paragraph == -1:
+            movie_review_final_paragraph = len(movie_review_div.contents) - 1
 
         if value:
             movie_review_final_paragraph = movie_review_final_paragraph - 3
@@ -289,8 +306,9 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         movie_review_array = self.create_movie_review_array(movie_review_div,
                                                             movie_review_final_paragraph)
+        if date_paragraph != -1:
+            movie_review_array.append(date_paragraph)
 
-        movie_review_array.append(date_paragraph)
         return movie_review_array
 
 
