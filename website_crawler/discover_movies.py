@@ -90,3 +90,15 @@ class OmeleteUrlFinder(MovieUrlFinder):
 
     def create_review_url(self, review_url):
         return self.base_url + review_url
+
+
+class CineclickUrlFinder(MovieUrlFinder):
+
+    def get_reviews_page_indexer(self):
+        return '?page={}'
+
+    def get_reviews_div(self, review_html):
+        return review_html.findAll('div', {'class': 'item'})
+
+    def create_review_url(self, review_url):
+        return self.base_url + review_url
