@@ -45,6 +45,11 @@ def create_argument_parser():
                         type=str,
                         help='The path to save the movie codes into')
 
+    parser.add_argument('-ivl',
+                        '--invalid-movies-log',
+                        type=str,
+                        help='The path to save the movies url that could not be downloaded')
+
     return parser
 
 
@@ -57,6 +62,7 @@ def main():
     base_url = user_args['base_url']
     movies_folder = user_args['movies_folder']
     movie_codes_path = user_args['movie_codes_path']
+    invalid_movies_log = user_args['invalid_movies_log']
 
     create_folder(movies_folder)
 
@@ -68,7 +74,7 @@ def main():
         movie_codes = search_for_valid_movie_codes(base_url, start_index, end_index)
         save_movie_codes(movie_codes, movie_codes_path)
 
-    cinema_em_cena = CinemaEmCenaCrawler(base_url, movies_folder)
+    cinema_em_cena = CinemaEmCenaCrawler(base_url, movies_folder, invalid_movies_log)
     cinema_em_cena.get_all_movie_reviews(movie_codes)
 
 

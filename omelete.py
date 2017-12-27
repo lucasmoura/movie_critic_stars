@@ -50,6 +50,11 @@ def create_argument_parser():
                         type=str,
                         help='The path to save the movie urls into')
 
+    parser.add_argument('-ivl',
+                        '--invalid-movies-log',
+                        type=str,
+                        help='The path to save the movies url that could not be downloaded')
+
     return parser
 
 
@@ -63,6 +68,7 @@ def main():
     reviews_page_url = user_args['reviews_page_url']
     movies_folder = user_args['movies_folder']
     movie_urls_path = user_args['movie_urls_path']
+    invalid_movies_log = user_args['invalid_movies_log']
 
     create_folder(movies_folder)
 
@@ -74,7 +80,7 @@ def main():
         movie_urls = search_for_omelete_urls(base_url, reviews_page_url, start_index, end_index)
         save_movie_codes(movie_urls, movie_urls_path)
 
-    omelete = OmeleteCrawler(base_url, movies_folder)
+    omelete = OmeleteCrawler(base_url, movies_folder, invalid_movies_log)
     omelete.get_all_movie_reviews(movie_urls)
 
 

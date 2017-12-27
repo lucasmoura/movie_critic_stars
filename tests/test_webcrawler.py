@@ -7,7 +7,7 @@ from website_crawler import movie_reviews_downloader as mrd
 class WebCrawlerTest(unittest.TestCase):
 
     def setUp(self):
-        self.cec = mrd.CinemaEmCenaCrawler(None, None)
+        self.cec = mrd.CinemaEmCenaCrawler(None, None, None)
 
     def test_date_index(self):
         with open('tests/files/movie_review_1.txt', 'r') as movie_text:

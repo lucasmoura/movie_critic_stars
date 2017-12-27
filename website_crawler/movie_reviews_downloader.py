@@ -18,31 +18,30 @@ movie review. The last line of the file will possess the date on which the
 movie review was published.
 """
 
-DATE_REGEX_PATTERN = '(\d{1,2}\s{0,1}de\s(?:Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4})' # noqa
-MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
-DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
-WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
 
-date_regex = re.compile(DATE_REGEX_PATTERN)
-festival_regex = re.compile(MOVIE_FESTIVAL_REGEX)
-directed_regex = re.compile(DIRECTED_BY_REGEX)
-with_regex = re.compile(WITH_REGEX)
+INVALID_DIRECTOR = 'INVALID_DIRECTOR'
+INVALID_MOVIE_TITLE = 'INVALID_MOVIE_TITLE'
+INVALID_STARS = 'INVALID_STARS'
+PROCESSING_ERROR = 'PROCESSING_ERROR'
 
 
 class MovieReview:
 
-    def __init__(self, movie_title, movie_stars, movie_director, movie_review_array):
+    def __init__(self, movie_title, movie_stars, movie_director, movie_review_array,
+                 error_message=None):
         self.movie_title = movie_title
         self.movie_stars = movie_stars
         self.movie_director = movie_director
         self.movie_review_array = movie_review_array
+        self.error_message = error_message
 
 
 class MovieCrawler:
 
-    def __init__(self, base_url, movies_folder):
+    def __init__(self, base_url, movies_folder, invalid_movies_log):
         self.base_url = base_url
         self.movies_folder = movies_folder
+        self.invalid_movies_log = invalid_movies_log
 
     def create_movie_review_url(self, code):
         raise NotImplementedError
@@ -65,6 +64,11 @@ class MovieCrawler:
             star_path = os.path.join(self.movies_folder, str(i))
             create_folder(star_path)
 
+    def save_invalid_movies(self, invalid_movies):
+        with open(self.invalid_movies_log, 'w') as invalid_movies_file:
+            for code, message in invalid_movies:
+                invalid_movies_file.write(str(code) + ': ' + message + '\n')
+
     def get_all_movie_reviews(self, movie_codes):
         self.create_star_folders()
 
@@ -77,9 +81,10 @@ class MovieCrawler:
             try:
                 movie_review = self.get_movie_review(movie_url)
             except:
-                invalid_movies.append(code)
+                invalid_movies.append((code, PROCESSING_ERROR))
                 continue
 
+            movie_review = self.get_movie_review(movie_url)
             movie_review_array = movie_review.movie_review_array
             movie_title = movie_review.movie_title
             movie_stars = movie_review.movie_stars
@@ -93,10 +98,10 @@ class MovieCrawler:
                 self.create_movie_text(movie_file_path, movie_title, original_title,
                                        movie_director, movie_review_array)
             else:
-                invalid_movies.append(code)
+                error_message = movie_review.error_message
+                invalid_movies.append((code, error_message))
 
-        print('\n Movies that could not be downloaded:\n')
-        print(invalid_movies)
+        self.save_invalid_movies(invalid_movies)
 
     def create_movie_text(self, movie_file_path, movie_title, original_title, movie_director,
                           movie_review_array):
@@ -109,6 +114,19 @@ class MovieCrawler:
 
 
 class CinemaEmCenaCrawler(MovieCrawler):
+
+    DATE_REGEX_PATTERN = '(\d{1,2}\s{0,1}de\s(?:Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro)\sde\s\d{4})' # noqa
+    MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
+    DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
+    WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
+
+    def __init__(self, base_url, movies_folder, invalid_movies_log):
+        self.date_regex = re.compile(CinemaEmCenaCrawler.DATE_REGEX_PATTERN)
+        self.festival_regex = re.compile(CinemaEmCenaCrawler.MOVIE_FESTIVAL_REGEX)
+        self.directed_regex = re.compile(CinemaEmCenaCrawler.DIRECTED_BY_REGEX)
+        self.with_regex = re.compile(CinemaEmCenaCrawler.WITH_REGEX)
+
+        super().__init__(base_url, movies_folder, invalid_movies_log)
 
     def get_movie_review(self, movie_url):
         movie_review_html = self.parse_response(movie_url)
@@ -140,7 +158,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         if review_director:
             return review_director.get_text()
         else:
-            return 'Empty'
+            return INVALID_DIRECTOR
 
     def get_movie_number_of_stars(self, movie_review_html):
         movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
@@ -157,7 +175,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         for number, text in enumerate(movie_review_div.contents):
             if text != '\n':
-                if date_regex.match(text.get_text().strip()):
+                if self.date_regex.match(text.get_text().strip()):
                     index = number
 
         return index
@@ -207,7 +225,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         if not last_paragraph:
             return False
 
-        is_festival_review = festival_regex.match(normalize('NFC', last_paragraph))
+        is_festival_review = self.festival_regex.match(normalize('NFC', last_paragraph))
 
         return is_festival_review is not None
 
@@ -236,17 +254,17 @@ class CinemaEmCenaCrawler(MovieCrawler):
         return movie_review_div.contents[movie_review_date_index].get_text()
 
     def remove_movie_festival_observation(self, movie_review_paragraph):
-        return festival_regex.sub('', movie_review_paragraph)
+        return self.festival_regex.sub('', movie_review_paragraph)
 
     def remove_directed_by(self, movie_review_paragraph):
-        return directed_regex.sub('', movie_review_paragraph)
+        return self.directed_regex.sub('', movie_review_paragraph)
 
     def remove_with_actor(self, movie_review_paragraph):
-        return with_regex.sub('', movie_review_paragraph)
+        return self.with_regex.sub('', movie_review_paragraph)
 
     def extract_date_from_review(self, movie_review_paragraph):
-        if date_regex.search(movie_review_paragraph):
-            movie_review_paragraph, date_review, _ = date_regex.split(
+        if self.date_regex.search(movie_review_paragraph):
+            movie_review_paragraph, date_review, _ = self.date_regex.split(
                 movie_review_paragraph)
 
             return (movie_review_paragraph, date_review)
@@ -323,13 +341,19 @@ class OmeleteCrawler(MovieCrawler):
         movie_title = self.get_movie_title(movie_review_html)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
+        error_message = None
 
-        if movie_title == -1 or movie_stars == -1:
+        if movie_title == -1:
             movie_review_array = -1
+            error_message = INVALID_MOVIE_TITLE
+        elif movie_stars == -1:
+            movie_review_array = -1
+            error_message = INVALID_STARS
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
 
-        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array)
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array,
+                                   error_message)
 
         return movie_review
 
@@ -445,6 +469,6 @@ class OmeleteCrawler(MovieCrawler):
             movie_director = movie_director.find('span', itemprop='name')['content']
 
         if not movie_director:
-            return 'Empty'
+            return INVALID_DIRECTOR
 
         return movie_director.strip()
