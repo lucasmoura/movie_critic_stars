@@ -22,16 +22,18 @@ movie review was published.
 INVALID_DIRECTOR = 'INVALID_DIRECTOR'
 INVALID_MOVIE_TITLE = 'INVALID_MOVIE_TITLE'
 INVALID_STARS = 'INVALID_STARS'
+INVALID_ACTORS = 'INVALID_ACTORS'
 PROCESSING_ERROR = 'PROCESSING_ERROR'
 
 
 class MovieReview:
 
-    def __init__(self, movie_title, movie_stars, movie_director, movie_review_array,
-                 error_message=None):
+    def __init__(self, movie_title, movie_stars, movie_director, movie_actors,
+                 movie_review_array, error_message=None):
         self.movie_title = movie_title
         self.movie_stars = movie_stars
         self.movie_director = movie_director
+        self.movie_actors = movie_actors
         self.movie_review_array = movie_review_array
         self.error_message = error_message
 
@@ -84,7 +86,6 @@ class MovieCrawler:
         for code in movie_codes:
             print('Downloading movie with code {} ...'.format(code))
             movie_url = self.create_movie_review_url(code)
-            movie_review = self.get_movie_review(movie_url)
 
             try:
                 movie_review = self.get_movie_review(movie_url)
@@ -96,6 +97,7 @@ class MovieCrawler:
             movie_title = movie_review.movie_title
             movie_stars = movie_review.movie_stars
             movie_director = movie_review.movie_director
+            movie_actors = movie_review.movie_actors
 
             if movie_review_array != -1:
                 original_title = movie_title
@@ -103,7 +105,7 @@ class MovieCrawler:
                 movie_file_path = os.path.join(self.movies_folder, movie_stars)
                 movie_file_path = os.path.join(movie_file_path, movie_title + '.txt')
                 self.create_movie_text(movie_file_path, movie_title, original_title,
-                                       movie_director, movie_review_array)
+                                       movie_director, movie_actors, movie_review_array)
             else:
                 error_message = movie_review.error_message
                 invalid_movies.append((code, error_message))
@@ -111,10 +113,11 @@ class MovieCrawler:
         self.save_invalid_movies(invalid_movies)
 
     def create_movie_text(self, movie_file_path, movie_title, original_title, movie_director,
-                          movie_review_array):
+                          movie_actors, movie_review_array):
         with open(movie_file_path, 'w') as movie_file:
             movie_file.write(original_title + '\n')
             movie_file.write(movie_director + '\n')
+            movie_file.write(movie_actors + '\n')
 
             for paragraph in movie_review_array:
                 movie_file.write(paragraph + '\n')
@@ -144,9 +147,11 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_title = self.format_movie_title(movie_title)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
+        movie_actors = self.get_movie_actors(movie_review_html)
         movie_review_array = self.get_movie_review_text(movie_review_html)
 
-        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array)
+        movie_review = MovieReview(movie_title, movie_stars, movie_director,
+                                   movie_actors, movie_review_array)
 
         return movie_review
 
@@ -164,24 +169,50 @@ class CinemaEmCenaCrawler(MovieCrawler):
     def create_movie_review_url(self, review_id):
         return self.base_url + str(review_id)
 
+    def parse_cast_str(self, cast_str):
+        movie_cast = self.cast_regex.findall(cast_str)
+
+        if not movie_cast:
+            return []
+
+        # Rermove </a>
+        movie_cast = [cast[:-4] for cast in movie_cast]
+
+        if len(movie_cast) > 1:
+            return ','.join(movie_cast)
+        else:
+            return movie_cast[0]
+
     def get_movie_director(self, movie_review_html):
         movie_cast = movie_review_html.find('div', {'class': 'critica-elenco'})
-        movie_cast_str = movie_cast.decode()
-
-        movie_directors_str = movie_cast_str[:movie_cast_str.find('Elenco')]
 
         if movie_cast:
-            movie_directors = self.cast_regex.findall(movie_directors_str)
+            movie_cast_str = movie_cast.decode()
+            movie_directors_str = movie_cast_str[:movie_cast_str.find('Elenco')]
+            directors = self.parse_cast_str(movie_directors_str)
 
-            # Rermove </a>
-            movie_directors = [director[:-4] for director in movie_directors]
+            if not directors:
+                return INVALID_DIRECTOR
 
-            if len(movie_directors) > 1:
-                return ','.join(movie_directors)
-            else:
-                return movie_directors[0]
+            return directors
 
         return INVALID_DIRECTOR
+
+    def get_movie_actors(self, movie_review_html):
+        movie_cast = movie_review_html.find('div', {'class': 'critica-elenco'})
+
+        if movie_cast:
+            movie_actors_str = movie_cast.decode()
+            movie_actors_str = movie_actors_str[
+                movie_actors_str.find('Elenco'):movie_actors_str.find('Roteiro')]
+            actors = self.parse_cast_str(movie_actors_str)
+
+            if not actors:
+                return INVALID_ACTORS
+
+            return actors
+
+        return INVALID_ACTORS
 
     def get_movie_number_of_stars(self, movie_review_html):
         movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
