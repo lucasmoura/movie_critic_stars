@@ -84,7 +84,6 @@ class MovieCrawler:
                 invalid_movies.append((code, PROCESSING_ERROR))
                 continue
 
-            movie_review = self.get_movie_review(movie_url)
             movie_review_array = movie_review.movie_review_array
             movie_title = movie_review.movie_title
             movie_stars = movie_review.movie_stars
@@ -485,3 +484,126 @@ class OmeleteCrawler(MovieCrawler):
             return INVALID_DIRECTOR
 
         return movie_director.strip()
+
+
+class CineclickCrawler(MovieCrawler):
+    DATE_REGEX_PATTERN = '(\d{1,2}\s{0,1}de\s(?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\sde\s\d{4})' # noqa
+
+    def __init__(self, base_url, movies_folder, invalid_movies_log):
+        self.date_regex = re.compile(CineclickCrawler.DATE_REGEX_PATTERN)
+
+        super().__init__(base_url, movies_folder, invalid_movies_log)
+
+    def create_movie_review_url(self, code):
+        return code
+
+    def get_movie_review(self, movie_url):
+        movie_review_html = self.parse_response(movie_url)
+
+        movie_title = self.get_movie_title(movie_review_html)
+        movie_director = self.get_movie_director(movie_review_html)
+        movie_stars = self.get_movie_number_of_stars(movie_review_html)
+        error_message = None
+
+        if movie_title == -1:
+            movie_review_array = -1
+            error_message = INVALID_MOVIE_TITLE
+        elif movie_stars == -1:
+            movie_review_array = -1
+            error_message = INVALID_STARS
+        else:
+            movie_review_array = self.create_movie_review_array(movie_review_html)
+
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array,
+                                   error_message)
+
+        return movie_review
+
+    def remove_reviewer_info(self, text):
+        string_match = self.date_regex.search(text)
+
+        if not string_match:
+            return text
+
+        info_str = string_match.group(0)
+
+        text = text[:text.find(info_str)]
+        return text.strip()
+
+    def create_movie_review_array(self, movie_review_html):
+        movie_review_div = self.get_movie_review_div(movie_review_html)
+        movie_review_array = []
+
+        for paragraph in movie_review_div.contents:
+            if type(paragraph) != bs4.element.NavigableString:
+                text = paragraph.get_text()
+            else:
+                text = paragraph.replace('\n', ' ').strip()
+
+            text = text.replace('\n', ' ').strip()
+            text = text.replace(u'\xa0', u' ')
+
+            if text:
+                text = self.remove_reviewer_info(text)
+                movie_review_array.append(text)
+
+        review_date = self.get_movie_review_date(movie_review_html)
+        movie_review_array.append(review_date)
+
+        return movie_review_array
+
+    def get_movie_review_div(self, movie_review_html):
+        return movie_review_html.find('div', {'class': 'body color-gray'})
+
+    def get_movie_review_date(self, movie_review_html):
+        review_date = movie_review_html.find('span', {'class': 'time'})
+        return review_date.get_text().strip()
+
+    def get_movie_number_of_stars(self, movie_review_html):
+        movie_stars_div = movie_review_html.find('div', {'class': 'rating'})
+
+        if movie_stars_div:
+            movie_stars = movie_stars_div.decode().count('active')
+            return str(movie_stars)
+
+        return -1
+
+    def get_movie_title(self, movie_review_html):
+        movie_title_div = movie_review_html.find('div', {'id': 'breadcrumb'})
+
+        if not movie_title_div:
+            return -1
+
+        movie_title_ul = movie_title_div.find('ul')
+
+        if not movie_title_ul:
+            return -1
+
+        movie_title_li = movie_title_ul.findAll('li')
+
+        if not movie_title_li:
+            return -1
+
+        # The movie title is in the third entry of the list
+        movie_title = movie_title_li[2].get_text().strip()
+
+        return movie_title.title()
+
+    def get_movie_director(self, movie_review_html):
+        movie_director = movie_review_html.find('ul', {'class': 'directors'})
+
+        movie_directors = None
+        if movie_director:
+            movie_directors = movie_director.findAll('li')
+
+        if movie_directors:
+            directors = []
+            for director in movie_directors:
+                directors.append(director.get_text().strip())
+
+            if len(directors) > 1:
+                return ','.join(directors)
+            else:
+                return directors[0]
+
+        return INVALID_DIRECTOR

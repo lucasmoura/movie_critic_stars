@@ -4,6 +4,7 @@ import pickle
 
 from utils.folder import create_folder
 from website_crawler.discover_movies import CineclickUrlFinder
+from website_crawler.movie_reviews_downloader import CineclickCrawler
 
 
 def load_movie_codes(movie_urls_path):
@@ -67,7 +68,7 @@ def main():
     reviews_page_url = user_args['reviews_page_url']
     movies_folder = user_args['movies_folder']
     movie_urls_path = user_args['movie_urls_path']
-    # invalid_movies_log = user_args['invalid_movies_log']
+    invalid_movies_log = user_args['invalid_movies_log']
 
     create_folder(movies_folder)
 
@@ -80,6 +81,9 @@ def main():
                                                   end_index)
         movie_urls = cineclick_url_finder.search_for_urls()
         save_movie_codes(movie_urls, movie_urls_path)
+
+    cineclick = CineclickCrawler(base_url, movies_folder, invalid_movies_log)
+    cineclick.get_all_movie_reviews(movie_urls)
 
 
 if __name__ == '__main__':
