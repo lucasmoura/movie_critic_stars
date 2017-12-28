@@ -570,6 +570,7 @@ class CineclickCrawler(MovieCrawler):
 
         movie_title = self.get_movie_title(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
+        movie_actors = self.get_movie_actors(movie_review_html)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         error_message = None
 
@@ -582,8 +583,8 @@ class CineclickCrawler(MovieCrawler):
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
 
-        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array,
-                                   error_message)
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
+                                   movie_review_array, error_message)
 
         return movie_review
 
@@ -681,3 +682,15 @@ class CineclickCrawler(MovieCrawler):
                 return directors[0]
 
         return INVALID_DIRECTOR
+
+    def get_movie_actors(self, movie_review_html):
+        movie_actors = movie_review_html.find('div', {'style': 'padding-top: 30px;'})
+
+        if movie_actors:
+            try:
+                movie_actors = movie_actors.p.get_text().strip()
+                return movie_actors
+            except:
+                return INVALID_ACTORS
+
+        return INVALID_ACTORS
