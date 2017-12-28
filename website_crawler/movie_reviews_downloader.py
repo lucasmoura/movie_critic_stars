@@ -388,6 +388,7 @@ class OmeleteCrawler(MovieCrawler):
         movie_title = self.get_movie_title(movie_review_html)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
+        movie_actors = self.get_movie_actors(movie_review_html)
         error_message = None
 
         if movie_title == -1:
@@ -399,8 +400,8 @@ class OmeleteCrawler(MovieCrawler):
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
 
-        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array,
-                                   error_message)
+        movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
+                                   movie_review_array, error_message)
 
         return movie_review
 
@@ -464,6 +465,12 @@ class OmeleteCrawler(MovieCrawler):
 
         return movie_title
 
+    def parse_movie_cast(self, movie_cast_array):
+        if len(movie_cast_array) > 1:
+            return ','.join(movie_cast_array)
+        else:
+            return movie_cast_array[0].strip()
+
     def get_movie_director(self, movie_review_html):
         movie_directors = movie_review_html.findAll('div', itemprop='director')
 
@@ -471,12 +478,26 @@ class OmeleteCrawler(MovieCrawler):
             movie_directors = [director.find('span', itemprop='name')['content']
                                for director in movie_directors]
 
-            if len(movie_directors) > 1:
-                return ','.join(movie_directors)
-            else:
-                return movie_directors[0].strip()
+            if not movie_directors:
+                return INVALID_DIRECTOR
+
+            return self.parse_movie_cast(movie_directors)
 
         return INVALID_DIRECTOR
+
+    def get_movie_actors(self, movie_review_html):
+        movie_actors = movie_review_html.findAll('span', itemprop='actor')
+
+        if movie_actors:
+            movie_actors = [actor.find('a', href=True).get_text()
+                            for actor in movie_actors]
+
+            if not movie_actors:
+                return INVALID_ACTORS
+
+            return self.parse_movie_cast(movie_actors)
+
+        return INVALID_ACTORS
 
     def check_text(self, text):
             if not text:
