@@ -461,12 +461,17 @@ class OmeleteCrawler(MovieCrawler):
         if not movie_title:
             return -1
 
-        try:
-            movie_title = movie_title['content']
-        except:
-            return -1
+        movie_title = movie_title.get('content', '')
 
-        movie_title = movie_title.replace('/', '')
+        if not movie_title:
+            movie_title = movie_review_html.find('h1', {'class': 'title'})
+
+            if not movie_title:
+                return INVALID_MOVIE_TITLE
+
+            movie_title = movie_title.get_text().split('|')[0].strip()
+        else:
+            movie_title = movie_title.replace('/', '')
 
         return movie_title
 
