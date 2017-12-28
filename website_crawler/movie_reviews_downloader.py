@@ -119,12 +119,14 @@ class CinemaEmCenaCrawler(MovieCrawler):
     MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
     DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
     WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
+    CAST_REGEX = '[\w\s]*</a>'
 
     def __init__(self, base_url, movies_folder, invalid_movies_log):
         self.date_regex = re.compile(CinemaEmCenaCrawler.DATE_REGEX_PATTERN)
         self.festival_regex = re.compile(CinemaEmCenaCrawler.MOVIE_FESTIVAL_REGEX)
         self.directed_regex = re.compile(CinemaEmCenaCrawler.DIRECTED_BY_REGEX)
         self.with_regex = re.compile(CinemaEmCenaCrawler.WITH_REGEX)
+        self.cast_regex = re.compile(CinemaEmCenaCrawler.CAST_REGEX)
 
         super().__init__(base_url, movies_folder, invalid_movies_log)
 
@@ -148,17 +150,23 @@ class CinemaEmCenaCrawler(MovieCrawler):
         return self.base_url + str(review_id)
 
     def get_movie_director(self, movie_review_html):
-        review_cast = movie_review_html.find('div', {'class': 'critica-elenco'})
+        movie_cast = movie_review_html.find('div', {'class': 'critica-elenco'})
+        movie_cast_str = movie_cast.decode()
 
-        if review_cast:
-            review_director = review_cast.find('a', href=True)
-        else:
-            review_director = None
+        movie_directors_str = movie_cast_str[:movie_cast_str.find('Elenco')]
 
-        if review_director:
-            return review_director.get_text()
-        else:
-            return INVALID_DIRECTOR
+        if movie_cast:
+            movie_directors = self.cast_regex.findall(movie_directors_str)
+
+            # Rermove </a>
+            movie_directors = [director[:-4] for director in movie_directors]
+
+            if len(movie_directors) > 1:
+                return ','.join(movie_directors)
+            else:
+                return movie_directors[0]
+
+        return INVALID_DIRECTOR
 
     def get_movie_number_of_stars(self, movie_review_html):
         movie_stars_div = movie_review_html.find('div', {'class': 'rateit'})
