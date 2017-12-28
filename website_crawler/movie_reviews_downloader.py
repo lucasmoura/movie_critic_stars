@@ -404,60 +404,6 @@ class OmeleteCrawler(MovieCrawler):
 
         return movie_review
 
-    def check_text(self, text):
-            if not text:
-                return False
-
-            if text.startswith('Leia mais'):
-                return False
-
-            if text.endswith('filme est\xE1 passando'):
-                return False
-
-            if text.endswith('filme est\xE1 sendo exibido'):
-                return False
-
-            if 'Cinemas e hor\xE1rios' in text:
-                return False
-
-            if text.endswith('Clipes'):
-                return False
-
-            if text.endswith('Trailer legendado'):
-                return False
-
-            if 'Omelete entrevista' in text:
-                return False
-
-            if 'Omelete Entrevista' in text:
-                return False
-
-            if '| Assista' in text:
-                return False
-
-            if '| Cinemas' in text:
-                return False
-
-            if '| Trailer' in text:
-                return False
-
-            if '| Entrevistas' in text:
-                return False
-
-            if 'Acompanhe as nossas' in text:
-                return False
-
-            if 'Veja clipes' in text:
-                return False
-
-            if 'Baixe of filmes' in text:
-                return False
-
-            if text.startswith('Confira nosso especial'):
-                return False
-
-            return True
-
     def format_date(self, date_text):
         return date_text.split('-')[0].strip()
 
@@ -519,15 +465,72 @@ class OmeleteCrawler(MovieCrawler):
         return movie_title
 
     def get_movie_director(self, movie_review_html):
-        movie_director = movie_review_html.find('div', itemprop='director')
+        movie_directors = movie_review_html.findAll('div', itemprop='director')
 
-        if movie_director:
-            movie_director = movie_director.find('span', itemprop='name')['content']
+        if movie_directors:
+            movie_directors = [director.find('span', itemprop='name')['content']
+                               for director in movie_directors]
 
-        if not movie_director:
-            return INVALID_DIRECTOR
+            if len(movie_directors) > 1:
+                return ','.join(movie_directors)
+            else:
+                return movie_directors[0].strip()
 
-        return movie_director.strip()
+        return INVALID_DIRECTOR
+
+    def check_text(self, text):
+            if not text:
+                return False
+
+            if text.startswith('Leia mais'):
+                return False
+
+            if text.endswith('filme est\xE1 passando'):
+                return False
+
+            if text.endswith('filme est\xE1 sendo exibido'):
+                return False
+
+            if 'Cinemas e hor\xE1rios' in text:
+                return False
+
+            if text.endswith('Clipes'):
+                return False
+
+            if text.endswith('Trailer legendado'):
+                return False
+
+            if 'Omelete entrevista' in text:
+                return False
+
+            if 'Omelete Entrevista' in text:
+                return False
+
+            if '| Assista' in text:
+                return False
+
+            if '| Cinemas' in text:
+                return False
+
+            if '| Trailer' in text:
+                return False
+
+            if '| Entrevistas' in text:
+                return False
+
+            if 'Acompanhe as nossas' in text:
+                return False
+
+            if 'Veja clipes' in text:
+                return False
+
+            if 'Baixe of filmes' in text:
+                return False
+
+            if text.startswith('Confira nosso especial'):
+                return False
+
+            return True
 
 
 class CineclickCrawler(MovieCrawler):
