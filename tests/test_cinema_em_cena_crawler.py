@@ -72,8 +72,9 @@ class CinemaEmCenaCrawlerTest(unittest.TestCase):
 
         expected = False
         date_index = self.cec.get_date_index_from_movie_review(movie_review)
+        movie_review_observation = movie_review.contents[date_index - 2].get_text().strip()
         self.assertEqual(self.cec.check_for_observation_in_movie_review(
-            movie_review, date_index - 2), expected)
+            movie_review_observation), expected)
 
         with open('tests/files/movie_review_3.txt', 'r') as movie_text:
             movie_review = BeautifulSoup(movie_text, 'html.parser')
@@ -83,8 +84,9 @@ class CinemaEmCenaCrawlerTest(unittest.TestCase):
 
         expected = True
         date_index = self.cec.get_date_index_from_movie_review(movie_review)
+        movie_review_observation = movie_review.contents[date_index - 1].get_text().strip()
         self.assertEqual(self.cec.check_for_observation_in_movie_review(
-            movie_review, date_index - 1), expected)
+            movie_review_observation), expected)
 
         with open('tests/files/movie_review_4.txt', 'r') as movie_text:
             movie_review = BeautifulSoup(movie_text, 'html.parser')
@@ -94,8 +96,9 @@ class CinemaEmCenaCrawlerTest(unittest.TestCase):
 
         expected = True
         date_index = self.cec.get_date_index_from_movie_review(movie_review)
+        movie_review_observation = movie_review.contents[date_index - 1].get_text().strip()
         self.assertEqual(self.cec.check_for_observation_in_movie_review(
-            movie_review, date_index - 1), expected)
+                movie_review_observation), expected)
 
     def test_format_date(self):
         expected = '12/6/2017'

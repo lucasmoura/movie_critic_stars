@@ -229,7 +229,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         return last_paragraph.startswith('Texto originalmente publicado')
 
-    def check_for_observation_in_movie_review(self, movie_review_div, movie_review_final_index):
+    def check_for_observation_in_movie_review(self, paragraph_text):
         """
         Some movie review possess some additional observation at the end of the
         text, information readers about after credit scenes and any other
@@ -243,12 +243,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         This method will be used to check if additional information can be found
         on the text.
         """
-        last_paragraph = self.get_last_paragraph(movie_review_div, movie_review_final_index)
-
-        if not last_paragraph:
-            return False
-
-        is_festival_review = self.festival_regex.match(normalize('NFC', last_paragraph))
+        is_festival_review = self.festival_regex.match(normalize('NFC', paragraph_text))
 
         return is_festival_review is not None
 
@@ -264,6 +259,9 @@ class CinemaEmCenaCrawler(MovieCrawler):
             paragraph = movie_review_div.contents[paragraph_number]
             if paragraph != '\n':
                 paragraph = paragraph.get_text().strip()
+
+                if self.check_for_observation_in_movie_review(paragraph):
+                    continue
 
                 if paragraph:
                     movie_review.append(paragraph)
@@ -338,12 +336,6 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
         if value:
             movie_review_final_paragraph = movie_review_final_paragraph - 3
-
-        value = self.check_for_observation_in_movie_review(
-            movie_review_div, movie_review_final_paragraph - 1)
-
-        if value:
-            movie_review_final_paragraph = movie_review_final_paragraph - 1
 
         movie_review_array = self.create_movie_review_array(movie_review_div,
                                                             movie_review_final_paragraph)
