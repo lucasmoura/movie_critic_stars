@@ -84,6 +84,7 @@ class MovieCrawler:
         for code in movie_codes:
             print('Downloading movie with code {} ...'.format(code))
             movie_url = self.create_movie_review_url(code)
+            movie_review = self.get_movie_review(movie_url)
 
             try:
                 movie_review = self.get_movie_review(movie_url)
@@ -580,7 +581,9 @@ class CineclickCrawler(MovieCrawler):
 
     def get_movie_review_date(self, movie_review_html):
         review_date = movie_review_html.find('span', {'class': 'time'})
-        return review_date.get_text().strip()
+        review_date = review_date.get_text().strip()
+
+        return self.format_date(review_date)
 
     def get_movie_number_of_stars(self, movie_review_html):
         movie_stars_div = movie_review_html.find('div', {'class': 'rating'})
@@ -609,6 +612,7 @@ class CineclickCrawler(MovieCrawler):
 
         # The movie title is in the third entry of the list
         movie_title = movie_title_li[2].get_text().strip()
+        movie_title = movie_title.replace('/', '')
 
         return movie_title.title()
 
