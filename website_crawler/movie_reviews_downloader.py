@@ -42,11 +42,18 @@ class MovieCrawler:
         self.base_url = base_url
         self.movies_folder = movies_folder
         self.invalid_movies_log = invalid_movies_log
+        self.months_dict = {'Janeiro': '1', 'Fevereiro': '2', 'Março': '3',
+                            'Abril': '4', 'Maio': '5', 'Junho': '6',
+                            'Julho': '7', 'Agosto': '8', 'Setembro': '9',
+                            'Outubro': '10', 'Novembro': '11', 'Dezembro': '12'}
 
     def create_movie_review_url(self, code):
         raise NotImplementedError
 
     def get_movie_review(self, movie_url):
+        raise NotImplementedError
+
+    def format_date(self, date_text):
         raise NotImplementedError
 
     def parse_movie_title(self, movie_title):
@@ -141,6 +148,14 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_review_array)
 
         return movie_review
+
+    def format_date(self, date_text):
+        date_text = date_text.replace('de', '')
+        date_parts = date_text.split()
+
+        date_parts[1] = self.months_dict[date_parts[1]]
+
+        return '/'.join(date_parts)
 
     def format_movie_title(self, movie_title):
         return movie_title.split('|')[0].strip()
@@ -332,6 +347,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_review_array = self.create_movie_review_array(movie_review_div,
                                                             movie_review_final_paragraph)
         if date_paragraph != -1:
+            date_paragraph = self.format_date(date_paragraph)
             movie_review_array.append(date_paragraph)
 
         return movie_review_array
@@ -418,6 +434,9 @@ class OmeleteCrawler(MovieCrawler):
 
             return True
 
+    def format_date(self, date_text):
+        return date_text.split('-')[0].strip()
+
     def create_movie_review_array(self, movie_review_html):
         movie_review_div = self.get_movie_review_div(movie_review_html)
         movie_review_array = []
@@ -434,6 +453,7 @@ class OmeleteCrawler(MovieCrawler):
                 movie_review_array.append(text)
 
         review_date = self.get_movie_review_date(movie_review_html)
+        review_date = self.format_date(review_date)
         movie_review_array.append(review_date)
 
         return movie_review_array
@@ -529,6 +549,9 @@ class CineclickCrawler(MovieCrawler):
 
         text = text[:text.find(info_str)]
         return text.strip()
+
+    def format_date(self, date_text):
+        return date_text.split()[0].strip()
 
     def create_movie_review_array(self, movie_review_html):
         movie_review_div = self.get_movie_review_div(movie_review_html)

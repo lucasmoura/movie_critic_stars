@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from website_crawler import movie_reviews_downloader as mrd
 
 
-class WebCrawlerTest(unittest.TestCase):
+class CinemaEmCenaCrawlerTest(unittest.TestCase):
 
     def setUp(self):
         self.cec = mrd.CinemaEmCenaCrawler(None, None, None)
@@ -96,3 +96,9 @@ class WebCrawlerTest(unittest.TestCase):
         date_index = self.cec.get_date_index_from_movie_review(movie_review)
         self.assertEqual(self.cec.check_for_observation_in_movie_review(
             movie_review, date_index - 1), expected)
+
+    def test_format_date(self):
+        expected = '12/6/2017'
+        test_string = '12 de Junho de 2017'
+
+        self.assertEqual(self.cec.format_date(test_string), expected)
