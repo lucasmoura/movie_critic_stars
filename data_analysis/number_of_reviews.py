@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -8,14 +9,27 @@ import matplotlib.pyplot as plt
 INVALID_FOLDER = -1
 
 
-def create_number_of_reviews_graph(website_name, reviews_count, graph_folder, graph_name):
+def create_number_of_reviews_graph(website_name, reviews_count, graph_folder,
+                                   graph_name, graph_color):
     if not os.path.exists(graph_folder):
         os.makedirs(graph_folder)
 
+    fig = plt.figure()
+
     x = list(range(1, 6))
-    ax = sns.barplot(x=x, y=reviews_count)
-    ax.set(xlabel='Star rating', ylabel='Number of Movies',
-           title='{}: Number of Movies X Star Rating'.format(website_name))
+    pal = sns.color_palette(graph_color, len(reviews_count))
+    rank = np.argsort(reviews_count).argsort().tolist()
+
+    ax = sns.barplot(x=x, y=reviews_count, palette=np.array(pal[::-1])[rank])
+
+    for index, row in enumerate(reviews_count):
+        ax.text(index, row, str(row), color='black', ha="center")
+
+    ax.set(xlabel='Star rating', ylabel='Number of Movies')
+
+    title = '{}: Number of Movies X Star Rating'.format(website_name)
+    fig.suptitle(title, fontsize=14, fontweight='bold')
+
     plt.savefig(os.path.join(graph_folder, graph_name))
 
 
@@ -60,6 +74,11 @@ def create_argparser():
                         type=str,
                         help='Name of the graph that will be generated')
 
+    parser.add_argument('-gc',
+                        '--graph-color',
+                        type=str,
+                        help='Color of the graph that will be generated')
+
     return parser
 
 
@@ -73,7 +92,9 @@ def main():
     website_name = user_args['website_name']
     graph_folder = user_args['graph_folder']
     graph_name = user_args['graph_name']
-    create_number_of_reviews_graph(website_name, reviews_count, graph_folder, graph_name)
+    graph_color = user_args['graph_color']
+    create_number_of_reviews_graph(website_name, reviews_count, graph_folder, graph_name,
+                                   graph_color)
 
 
 if __name__ == '__main__':
