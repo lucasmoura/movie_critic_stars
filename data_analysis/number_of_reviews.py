@@ -9,25 +9,23 @@ import matplotlib.pyplot as plt
 INVALID_FOLDER = -1
 
 
-def create_number_of_reviews_graph(website_name, reviews_count, graph_folder,
+def create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder,
                                    graph_name, graph_color):
     if not os.path.exists(graph_folder):
         os.makedirs(graph_folder)
 
     fig = plt.figure()
 
-    x = list(range(1, 6))
     pal = sns.color_palette(graph_color, len(reviews_count))
     rank = np.argsort(reviews_count).argsort().tolist()
 
-    ax = sns.barplot(x=x, y=reviews_count, palette=np.array(pal[::-1])[rank])
+    ax = sns.barplot(x=x_index, y=reviews_count, palette=np.array(pal[::-1])[rank])
 
     for index, row in enumerate(reviews_count):
         ax.text(index, row, str(row), color='black', ha="center")
 
     ax.set(xlabel='Star rating', ylabel='Number of Movies')
 
-    title = '{}: Number of Movies X Star Rating'.format(website_name)
     fig.suptitle(title, fontsize=14, fontweight='bold')
 
     plt.savefig(os.path.join(graph_folder, graph_name))
@@ -90,10 +88,12 @@ def main():
     reviews_count = count_number_of_reviews(movies_folder)
 
     website_name = user_args['website_name']
+    title = '{}: Number of Movies X Star Rating'.format(website_name)
+    x_index = list(range(1, 6))
     graph_folder = user_args['graph_folder']
     graph_name = user_args['graph_name']
     graph_color = user_args['graph_color']
-    create_number_of_reviews_graph(website_name, reviews_count, graph_folder, graph_name,
+    create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder, graph_name,
                                    graph_color)
 
 

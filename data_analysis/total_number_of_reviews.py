@@ -1,35 +1,5 @@
 import argparse
-import os
-
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-from number_of_reviews import count_number_of_reviews
-
-
-INVALID_FOLDER = -1
-
-
-def create_number_of_reviews_graph(reviews_count, x_index, graph_folder, graph_name):
-    if not os.path.exists(graph_folder):
-        os.makedirs(graph_folder)
-
-    fig = plt.figure()
-
-    pal = sns.color_palette("Greens_d", len(reviews_count))
-    rank = np.argsort(reviews_count).argsort().tolist()
-
-    ax = sns.barplot(x=x_index, y=reviews_count, palette=np.array(pal[::-1])[rank])
-
-    for index, row in enumerate(reviews_count):
-        ax.text(index, row, str(row), color='black', ha="center")
-
-    title = 'Number of Movies per Website\nTotal Number of Movies: {}'.format(
-        sum(reviews_count))
-    fig.suptitle(title, fontsize=14, fontweight='bold')
-
-    plt.savefig(os.path.join(graph_folder, graph_name))
+from number_of_reviews import count_number_of_reviews, create_number_of_reviews_graph
 
 
 def create_argparser():
@@ -75,6 +45,11 @@ def create_argparser():
                         type=str,
                         help='Name of the graph that will be generated')
 
+    parser.add_argument('-gc',
+                        '--graph-color',
+                        type=str,
+                        help='Color of the graph that will be generated')
+
     return parser
 
 
@@ -95,13 +70,16 @@ def main():
     cec_website = user_args['cec_website']
     cineclick_website = user_args['cineclick_website']
 
-    x_index = [omelete_website, cec_website, cineclick_website]
-
     graph_folder = user_args['graph_folder']
     graph_name = user_args['graph_name']
+    graph_color = user_args['graph_color']
     reviews_count = [omelete_reviews_count, cec_reviews_count,
                      cineclick_reviews_count]
-    create_number_of_reviews_graph(reviews_count, x_index, graph_folder, graph_name)
+    title = 'Number of Movies per Website\nTotal Number of Movies: {}'.format(
+        sum(reviews_count))
+    x_index = [omelete_website, cec_website, cineclick_website]
+    create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder, graph_name,
+                                   graph_color)
 
 
 if __name__ == '__main__':

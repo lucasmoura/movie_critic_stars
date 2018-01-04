@@ -6,6 +6,7 @@ set -e
 
 GRAPH_FOLDER="data_analysis/graphs/total_number_of_reviews"
 GRAPH_NAME="total_number_of_reviews.png"
+GRAPH_COLOR="Greens_d"
 
 OMELETE_MOVIES_FOLDER="data/omelete/movies"
 OMELETE_WEBSITE="Omelete"
@@ -23,4 +24,5 @@ python data_analysis/total_number_of_reviews.py \
   --cineclick-folder=${CINECLICK_MOVIES_FOLDER} \
   --cineclick-website=${CINECLICK_WEBSITE} \
   --graph-folder=${GRAPH_FOLDER} \
-  --graph-name=${GRAPH_NAME}
+  --graph-name=${GRAPH_NAME} \
+  --graph-color=${GRAPH_COLOR}
