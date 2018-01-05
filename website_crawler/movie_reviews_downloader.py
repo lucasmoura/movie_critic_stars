@@ -8,16 +8,6 @@ from unicodedata import normalize
 
 from utils.folder import create_folder
 
-"""
-This script is responsible for downloading the movie reviews written by
-Mr. Pablo Villaca. This script will store each movie review in unique file.
-This file will possess two lines and the review itself. The first line will
-present the movie title and the second line, the number of stars the movie
-received. Afther these two lines, the rest of the file will be populated by the
-movie review. The last line of the file will possess the date on which the
-movie review was published.
-"""
-
 
 INVALID_DIRECTOR = 'INVALID_DIRECTOR'
 INVALID_MOVIE_TITLE = 'INVALID_MOVIE_TITLE'

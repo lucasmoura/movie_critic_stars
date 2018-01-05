@@ -4,17 +4,6 @@ from bs4 import BeautifulSoup
 
 from website_crawler.movie_reviews_downloader import CinemaEmCenaCrawler
 
-"""
-    This script will be used to search for on the cinema em cena website
-    for the valid code associated with movie reviews. This script will try
-    by default the codes between 5000 and 9000.
-
-    Basically, it will compose an url with a code and try to request the page
-    to see if it actually exists.
-
-    All the valid codes are going to be stored inside a txt file.
-"""
-
 
 def search_for_valid_movie_codes(base_url, start_code, final_code):
     valid_movie_codes = []
