@@ -29,12 +29,13 @@ PROCESSING_ERROR = 'PROCESSING_ERROR'
 class MovieReview:
 
     def __init__(self, movie_title, movie_stars, movie_director, movie_actors,
-                 movie_review_array, error_message=None):
+                 movie_review_array, movie_date, error_message=None):
         self.movie_title = movie_title
         self.movie_stars = movie_stars
         self.movie_director = movie_director
         self.movie_actors = movie_actors
         self.movie_review_array = movie_review_array
+        self.movie_date = movie_date
         self.error_message = error_message
 
 
@@ -98,6 +99,7 @@ class MovieCrawler:
             movie_stars = movie_review.movie_stars
             movie_director = movie_review.movie_director
             movie_actors = movie_review.movie_actors
+            movie_date = movie_review.movie_date
 
             if movie_review_array != -1:
                 original_title = movie_title
@@ -105,7 +107,7 @@ class MovieCrawler:
                 movie_file_path = os.path.join(self.movies_folder, movie_stars)
                 movie_file_path = os.path.join(movie_file_path, movie_title + '.txt')
                 self.create_movie_text(movie_file_path, movie_title, original_title,
-                                       movie_director, movie_actors, movie_review_array)
+                                       movie_director, movie_actors, movie_review_array, movie_date)
             else:
                 error_message = movie_review.error_message
                 invalid_movies.append((code, error_message))
@@ -113,14 +115,21 @@ class MovieCrawler:
         self.save_invalid_movies(invalid_movies)
 
     def create_movie_text(self, movie_file_path, movie_title, original_title, movie_director,
-                          movie_actors, movie_review_array):
+                          movie_actors, movie_review_array, movie_date):
         with open(movie_file_path, 'w') as movie_file:
             movie_file.write(original_title + '\n')
             movie_file.write(movie_director + '\n')
             movie_file.write(movie_actors + '\n')
 
-            for paragraph in movie_review_array:
-                movie_file.write(paragraph + '\n')
+            if len(movie_review_array) > 1:
+                movie_review = '<br /><br />'.join(movie_review_array)
+            else:
+                movie_review = movie_review_array[0]
+
+            movie_file.write(movie_review + '\n')
+
+            if movie_date:
+                movie_file.write(movie_date)
 
 
 class CinemaEmCenaCrawler(MovieCrawler):
@@ -148,10 +157,10 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
         movie_actors = self.get_movie_actors(movie_review_html)
-        movie_review_array = self.get_movie_review_text(movie_review_html)
+        movie_review_array, movie_date = self.get_movie_review_text(movie_review_html)
 
         movie_review = MovieReview(movie_title, movie_stars, movie_director,
-                                   movie_actors, movie_review_array)
+                                   movie_actors, movie_review_array, movie_date)
 
         return movie_review
 
@@ -337,9 +346,9 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_review_paragraph, date_review = self.extract_date_from_review(movie_review_paragraph)
 
         if date_review != -1:
-            return [movie_review_paragraph, date_review]
+            return (movie_review_paragraph, date_review)
         else:
-            return movie_review_paragraph
+            return (movie_review_paragraph, None)
 
     def get_movie_review_text(self, movie_review_html):
         movie_review_div = movie_review_html.find(
@@ -372,9 +381,9 @@ class CinemaEmCenaCrawler(MovieCrawler):
                                                             movie_review_final_paragraph)
         if date_paragraph != -1:
             date_paragraph = self.format_date(date_paragraph)
-            movie_review_array.append(date_paragraph)
+            return (movie_review_array, date_paragraph)
 
-        return movie_review_array
+        return (movie_review_array, None)
 
 
 class OmeleteCrawler(MovieCrawler):
@@ -389,6 +398,7 @@ class OmeleteCrawler(MovieCrawler):
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
         movie_director = self.get_movie_director(movie_review_html)
         movie_actors = self.get_movie_actors(movie_review_html)
+        movie_date = None
         error_message = None
 
         if movie_title == -1:
@@ -399,9 +409,10 @@ class OmeleteCrawler(MovieCrawler):
             error_message = INVALID_STARS
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
+            movie_date = self.get_movie_review_date(movie_review_html)
 
         movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
-                                   movie_review_array, error_message)
+                                   movie_review_array, movie_date, error_message)
 
         return movie_review
 
@@ -423,10 +434,6 @@ class OmeleteCrawler(MovieCrawler):
             if self.check_text(text):
                 movie_review_array.append(text)
 
-        review_date = self.get_movie_review_date(movie_review_html)
-        review_date = self.format_date(review_date)
-        movie_review_array.append(review_date)
-
         return movie_review_array
 
     def get_movie_review_div(self, movie_review_html):
@@ -434,7 +441,10 @@ class OmeleteCrawler(MovieCrawler):
 
     def get_movie_review_date(self, movie_review_html):
         review_date = movie_review_html.find('span', itemprop='datePublished')
-        return review_date.contents[0].strip()
+        review_date = review_date.contents[0].strip()
+        review_date = self.format_date(review_date)
+
+        return review_date
 
     def get_movie_number_of_stars(self, movie_review_html):
         sem_nota = movie_review_html.find('span', {'class': 'nota-texto'}).contents[0]
@@ -572,6 +582,7 @@ class CineclickCrawler(MovieCrawler):
         movie_director = self.get_movie_director(movie_review_html)
         movie_actors = self.get_movie_actors(movie_review_html)
         movie_stars = self.get_movie_number_of_stars(movie_review_html)
+        movie_date = None
         error_message = None
 
         if movie_title == -1:
@@ -582,9 +593,10 @@ class CineclickCrawler(MovieCrawler):
             error_message = INVALID_STARS
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
+            movie_date = self.get_movie_review_date(movie_review_html)
 
         movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
-                                   movie_review_array, error_message)
+                                   movie_review_array, movie_date, error_message)
 
         return movie_review
 
@@ -618,9 +630,6 @@ class CineclickCrawler(MovieCrawler):
             if text:
                 text = self.remove_reviewer_info(text)
                 movie_review_array.append(text)
-
-        review_date = self.get_movie_review_date(movie_review_html)
-        movie_review_array.append(review_date)
 
         return movie_review_array
 
