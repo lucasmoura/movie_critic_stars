@@ -23,6 +23,7 @@ INVALID_DIRECTOR = 'INVALID_DIRECTOR'
 INVALID_MOVIE_TITLE = 'INVALID_MOVIE_TITLE'
 INVALID_STARS = 'INVALID_STARS'
 INVALID_ACTORS = 'INVALID_ACTORS'
+INVALID_REVIEW = 'INVALID_REVIEW'
 PROCESSING_ERROR = 'PROCESSING_ERROR'
 
 
@@ -138,7 +139,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
     MOVIE_FESTIVAL_REGEX = 'Observa\xe7\xe3o:[^\.]*\.{0,1}'
     DIRECTED_BY_REGEX = 'Dirigido por[^\.]*\.{0,1}'
     WITH_REGEX = '\s{0,1}Com:[^\.]*\.{0,1}'
-    CAST_REGEX = '[\w\s]*</a>'
+    CAST_REGEX = '[\w\s\.]*</a>'
 
     def __init__(self, base_url, movies_folder, invalid_movies_log):
         self.date_regex = re.compile(CinemaEmCenaCrawler.DATE_REGEX_PATTERN)
@@ -151,6 +152,7 @@ class CinemaEmCenaCrawler(MovieCrawler):
 
     def get_movie_review(self, movie_url):
         movie_review_html = self.parse_response(movie_url)
+        error_message = None
 
         movie_title = movie_review_html.title.string
         movie_title = self.format_movie_title(movie_title)
@@ -159,10 +161,70 @@ class CinemaEmCenaCrawler(MovieCrawler):
         movie_actors = self.get_movie_actors(movie_review_html)
         movie_review_array, movie_date = self.get_movie_review_text(movie_review_html)
 
+        if not movie_review_array:
+            error_message = INVALID_REVIEW
+            movie_review_array = -1
+
         movie_review = MovieReview(movie_title, movie_stars, movie_director,
-                                   movie_actors, movie_review_array, movie_date)
+                                   movie_actors, movie_review_array, movie_date, error_message)
 
         return movie_review
+
+    def create_movie_review_from_single_paragraph(self, movie_review_div):
+        movie_review_paragraph = ''
+        for line in movie_review_div.contents:
+            if line != '\n' and line.get_text():
+                movie_review_paragraph = line.get_text()
+
+        movie_review_paragraph = self.remove_movie_festival_observation(movie_review_paragraph)
+
+        movie_review_paragraph = self.remove_directed_by(movie_review_paragraph)
+        movie_review_paragraph = self.remove_with_actor(movie_review_paragraph)
+
+        movie_review_paragraph, date_review = self.extract_date_from_review(movie_review_paragraph)
+
+        if not movie_review_paragraph:
+            return (None, None)
+
+        if date_review != -1:
+            return (movie_review_paragraph, date_review)
+        else:
+            return (movie_review_paragraph, None)
+
+    def get_movie_review_text(self, movie_review_html):
+        movie_review_div = movie_review_html.find(
+            'div', {'class': 'critica-conteudo'})
+
+        """
+        Some movie reviews are not in the paragraph format found on most of the
+        text. Therefore, the whole movie review is inside a single paragraph.
+        In that case, a different approach must be taken in order to extract the
+        movie review from it.
+        """
+        if len(movie_review_div.contents) <= 5:
+            return self.create_movie_review_from_single_paragraph(movie_review_div)
+
+        movie_review_date_index = self.get_date_index_from_movie_review(movie_review_div)
+        value = self.check_for_critics_published_in_movie_festivals(
+            movie_review_div, movie_review_date_index - 2)
+
+        date_paragraph = self.get_date_paragraph(movie_review_div, movie_review_date_index)
+
+        movie_review_final_paragraph = movie_review_date_index
+
+        if date_paragraph == -1:
+            movie_review_final_paragraph = len(movie_review_div.contents) - 1
+
+        if value:
+            movie_review_final_paragraph = movie_review_final_paragraph - 3
+
+        movie_review_array = self.create_movie_review_array(movie_review_div,
+                                                            movie_review_final_paragraph)
+        if date_paragraph != -1:
+            date_paragraph = self.format_date(date_paragraph)
+            return (movie_review_array, date_paragraph)
+
+        return (movie_review_array, None)
 
     def format_date(self, date_text):
         date_text = date_text.replace('de', '')
@@ -332,59 +394,6 @@ class CinemaEmCenaCrawler(MovieCrawler):
         else:
             return (movie_review_paragraph, -1)
 
-    def create_movie_review_from_single_paragraph(self, movie_review_div):
-        movie_review_paragraph = ''
-        for line in movie_review_div.contents:
-            if line != '\n' and line.get_text():
-                movie_review_paragraph = line.get_text()
-
-        movie_review_paragraph = self.remove_movie_festival_observation(movie_review_paragraph)
-
-        movie_review_paragraph = self.remove_directed_by(movie_review_paragraph)
-        movie_review_paragraph = self.remove_with_actor(movie_review_paragraph)
-
-        movie_review_paragraph, date_review = self.extract_date_from_review(movie_review_paragraph)
-
-        if date_review != -1:
-            return (movie_review_paragraph, date_review)
-        else:
-            return (movie_review_paragraph, None)
-
-    def get_movie_review_text(self, movie_review_html):
-        movie_review_div = movie_review_html.find(
-            'div', {'class': 'critica-conteudo'})
-
-        """
-        Some movie reviews are not in the paragraph format found on most of the
-        text. Therefore, the whole movie review is inside a single paragraph.
-        In that case, a different approach must be taken in order to extract the
-        movie review from it.
-        """
-        if len(movie_review_div.contents) <= 5:
-            return self.create_movie_review_from_single_paragraph(movie_review_div)
-
-        movie_review_date_index = self.get_date_index_from_movie_review(movie_review_div)
-        value = self.check_for_critics_published_in_movie_festivals(
-            movie_review_div, movie_review_date_index - 2)
-
-        date_paragraph = self.get_date_paragraph(movie_review_div, movie_review_date_index)
-
-        movie_review_final_paragraph = movie_review_date_index
-
-        if date_paragraph == -1:
-            movie_review_final_paragraph = len(movie_review_div.contents) - 1
-
-        if value:
-            movie_review_final_paragraph = movie_review_final_paragraph - 3
-
-        movie_review_array = self.create_movie_review_array(movie_review_div,
-                                                            movie_review_final_paragraph)
-        if date_paragraph != -1:
-            date_paragraph = self.format_date(date_paragraph)
-            return (movie_review_array, date_paragraph)
-
-        return (movie_review_array, None)
-
 
 class OmeleteCrawler(MovieCrawler):
 
@@ -409,7 +418,12 @@ class OmeleteCrawler(MovieCrawler):
             error_message = INVALID_STARS
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
-            movie_date = self.get_movie_review_date(movie_review_html)
+
+            if not movie_review_array:
+                movie_review_array = -1
+                error_message = INVALID_REVIEW
+            else:
+                movie_date = self.get_movie_review_date(movie_review_html)
 
         movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
                                    movie_review_array, movie_date, error_message)
@@ -561,6 +575,9 @@ class OmeleteCrawler(MovieCrawler):
             if text.startswith('Confira nosso especial'):
                 return False
 
+            if text.startswith('(nota dos editores'):
+                return False
+
             return True
 
 
@@ -593,7 +610,12 @@ class CineclickCrawler(MovieCrawler):
             error_message = INVALID_STARS
         else:
             movie_review_array = self.create_movie_review_array(movie_review_html)
-            movie_date = self.get_movie_review_date(movie_review_html)
+
+            if not movie_review_array:
+                error_message = INVALID_REVIEW
+                movie_review_array = -1
+            else:
+                movie_date = self.get_movie_review_date(movie_review_html)
 
         movie_review = MovieReview(movie_title, movie_stars, movie_director, movie_actors,
                                    movie_review_array, movie_date, error_message)
