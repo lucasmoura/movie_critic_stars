@@ -31,7 +31,9 @@ def get_review_size(sentences_dir, review_file):
     review_file = os.path.join(sentences_dir, review_file)
 
     with open(review_file, 'r') as rf:
-        sentence = rf.read()
+        sentence = rf.readlines()
+
+    sentence = re.sub(r'<br\s/><br\s/>', '', sentence[3])
 
     words = re.findall(r'\w+', sentence)
     return len(words)
