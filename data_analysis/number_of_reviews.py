@@ -10,7 +10,7 @@ INVALID_FOLDER = -1
 
 
 def create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder,
-                                   graph_name, graph_color):
+                                   graph_name, graph_color, xlabel, ylabel):
     if not os.path.exists(graph_folder):
         os.makedirs(graph_folder)
 
@@ -24,7 +24,7 @@ def create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder,
     for index, row in enumerate(reviews_count):
         ax.text(index, row, str(row), color='black', ha="center")
 
-    ax.set(xlabel='Star rating', ylabel='Number of Movies')
+    ax.set(xlabel=xlabel, ylabel=ylabel)
 
     fig.suptitle(title, fontsize=14, fontweight='bold')
 
@@ -77,6 +77,16 @@ def create_argparser():
                         type=str,
                         help='Color of the graph that will be generated')
 
+    parser.add_argument('-xl',
+                        '--x-label',
+                        type=str,
+                        help='Label for X axis')
+
+    parser.add_argument('-yl',
+                        '--y-label',
+                        type=str,
+                        help='Label for Y axis')
+
     return parser
 
 
@@ -93,8 +103,11 @@ def main():
     graph_folder = user_args['graph_folder']
     graph_name = user_args['graph_name']
     graph_color = user_args['graph_color']
+    x_label = user_args['x_label']
+    y_label = user_args['y_label']
+
     create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder, graph_name,
-                                   graph_color)
+                                   graph_color, x_label, y_label)
 
 
 if __name__ == '__main__':

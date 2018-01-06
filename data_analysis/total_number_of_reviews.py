@@ -50,6 +50,16 @@ def create_argparser():
                         type=str,
                         help='Color of the graph that will be generated')
 
+    parser.add_argument('-xl',
+                        '--x-label',
+                        type=str,
+                        help='Label for X axis')
+
+    parser.add_argument('-yl',
+                        '--y-label',
+                        type=str,
+                        help='Label for Y axis')
+
     return parser
 
 
@@ -73,13 +83,16 @@ def main():
     graph_folder = user_args['graph_folder']
     graph_name = user_args['graph_name']
     graph_color = user_args['graph_color']
+    x_label = user_args['x_label']
+    y_label = user_args['y_label']
     reviews_count = [omelete_reviews_count, cec_reviews_count,
                      cineclick_reviews_count]
     title = 'Number of Movies per Website\nTotal Number of Movies: {}'.format(
         sum(reviews_count))
     x_index = [omelete_website, cec_website, cineclick_website]
+
     create_number_of_reviews_graph(reviews_count, title, x_index, graph_folder, graph_name,
-                                   graph_color)
+                                   graph_color, x_label, y_label)
 
 
 if __name__ == '__main__':
