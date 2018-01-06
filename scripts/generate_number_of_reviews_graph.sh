@@ -5,8 +5,8 @@ set -e
 #usage: ./scripts/generate_number_of_reviews_graph.sh
 
 GRAPH_FOLDER="data_analysis/graphs/number_of_reviews"
-X_LABEL="Star rating"
-Y_LABEL="Number of movies"
+X_LABEL=""
+Y_LABEL=""
 
 OMELETE_MOVIES_FOLDER="data/omelete/movies"
 OMELETE_GRAPH_NAME="omelete_number_of_reviews.png"
@@ -20,8 +20,8 @@ python data_analysis/number_of_reviews.py \
   --graph-folder=${GRAPH_FOLDER} \
   --graph-name=${OMELETE_GRAPH_NAME} \
   --graph-color=${OMELETE_GRAPH_COLOR} \
-  --x-label=${X_LABEL} \
-  --y-label=${Y_LABEL}
+  --x-label="${X_LABEL}" \
+  --y-label="${Y_LABEL}"
 
 CINEMA_EM_CENA_MOVIES_FOLDER="data/cinema_em_cena/movies"
 CINEMA_EM_CENA_GRAPH_NAME="cinema_em_cena_number_of_reviews.png"
@@ -35,8 +35,8 @@ python data_analysis/number_of_reviews.py \
   --graph-folder=${GRAPH_FOLDER} \
   --graph-name=${CINEMA_EM_CENA_GRAPH_NAME} \
   --graph-color=${CINEMA_EM_CENA_GRAPH_COLOR} \
-  --x-label=${X_LABEL} \
-  --y-label=${Y_LABEL}
+  --x-label="${X_LABEL}" \
+  --y-label="${Y_LABEL}"
 
 CINECLICK_MOVIES_FOLDER="data/cineclick/movies"
 CINECLICK_GRAPH_NAME="cineclick_number_of_reviews.png"
@@ -50,5 +50,5 @@ python data_analysis/number_of_reviews.py \
   --graph-folder=${GRAPH_FOLDER} \
   --graph-name=${CINECLICK_GRAPH_NAME} \
   --graph-color=${CINECLICK_GRAPH_COLOR} \
-  --x-label=${X_LABEL} \
-  --y-label=${Y_LABEL}
+  --x-label="${X_LABEL}" \
+  --y-label="${Y_LABEL}"
