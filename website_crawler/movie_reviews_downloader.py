@@ -433,12 +433,18 @@ class OmeleteCrawler(MovieCrawler):
             else:
                 text = paragraph.replace('\n', ' ').strip()
 
-            text = text.replace('\n', ' ').strip()
+            text = self.remove_special_characters(text)
 
             if self.check_text(text):
                 movie_review_array.append(text)
 
         return movie_review_array
+
+    def remove_special_characters(self, text):
+        text = text.replace('\n', ' ').strip()
+        text = text.replace('\xa0', ' ')
+
+        return text
 
     def get_movie_review_div(self, movie_review_html):
         return movie_review_html.find('div', itemprop='reviewBody')
