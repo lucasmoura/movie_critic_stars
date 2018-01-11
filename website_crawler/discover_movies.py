@@ -7,7 +7,7 @@ from website_crawler.movie_reviews_downloader import CinemaEmCenaCrawler
 
 def search_for_valid_movie_codes(base_url, start_code, final_code):
     valid_movie_codes = []
-    cec = CinemaEmCenaCrawler(base_url, None)
+    cec = CinemaEmCenaCrawler(base_url, None, None)
 
     for code in range(start_code, final_code+1):
         print('Testing code {} ...'.format(code))
