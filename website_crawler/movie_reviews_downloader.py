@@ -574,6 +574,21 @@ class OmeleteCrawler(MovieCrawler):
             if text.startswith('(nota dos editores'):
                 return False
 
+            if text.startswith('Imagens \xA9'):
+                return False
+
+            if text.startswith('Trailer'):
+                return False
+
+            if 'Elenco:' in text:
+                return False
+
+            if text.startswith('Onde assistir ao'):
+                return False
+
+            if text.startswith('Assista aos clipes'):
+                return False
+
             return True
 
 
