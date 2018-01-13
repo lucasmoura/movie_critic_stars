@@ -2,7 +2,7 @@
 
 set -e
 
-#usage: ./scripts/generate_number_of_reviews_graph.sh
+#usage: ./scripts/generate_total_number_of_reviews_graph.sh
 
 GRAPH_FOLDER="data_analysis/graphs/total_number_of_reviews"
 GRAPH_NAME="total_number_of_reviews.png"
