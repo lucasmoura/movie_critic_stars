@@ -66,3 +66,48 @@ class MovieReviewDatasetTest(unittest.TestCase):
 
         expected_test_dataset = [[11, 12], [15, 16]]
         self.assertEqual(expected_test_dataset, self.movie_dataset.test_dataset)
+
+    def test_remove_director_from_movie(self):
+        self.movie_dataset.director_str = '<director>'
+
+        txt_file = [
+            'title',
+            'director1,director2',
+            [],
+            'director1 and director2 are working together again',
+            []
+        ]
+
+        expected_review = '<director> and <director> are working together again'
+        self.assertEqual(self.movie_dataset.remove_director_from_review(txt_file),
+                         expected_review)
+
+    def test_remove_actors_from_movie(self):
+        self.movie_dataset.actor_str = '<actors>'
+
+        txt_file = [
+            'title',
+            [],
+            'actors1,actors2',
+            'actors1 and actors2 are working together again',
+            []
+        ]
+
+        expected_review = '<actors> and <actors> are working together again'
+        self.assertEqual(self.movie_dataset.remove_actors_from_review(txt_file),
+                         expected_review)
+
+    def test_remove_title_from_movie(self):
+        self.movie_dataset.title_str = '<title>'
+
+        txt_file = [
+            'Movie1',
+            [],
+            [],
+            'Movie1 is awesome',
+            []
+        ]
+
+        expected_review = '<title> is awesome'
+        self.assertEqual(self.movie_dataset.remove_title_from_review(txt_file),
+                         expected_review)
