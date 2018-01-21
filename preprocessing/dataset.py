@@ -13,7 +13,7 @@ REVIEW_LINE = 3
 DATE_LINE = 4
 
 
-def load_txts_in_folder(self, folder):
+def load_txts_in_folder(folder):
     txt_files = []
 
     for file_name in os.listdir(folder):
@@ -21,7 +21,7 @@ def load_txts_in_folder(self, folder):
             text_path = os.path.join(folder, file_name)
 
             with open(text_path, 'r') as txt_file:
-                txt_data = txt_file.read().split()
+                txt_data = txt_file.read().split('\n')
 
             txt_files.append(txt_data)
 
@@ -60,8 +60,8 @@ class MovieReviewDataset:
     def load_movies_txts(self):
         self.txt_files = []
 
-        for star in range(1, 5):
-            movie_path = os.path.join(self.movie_folder, star)
+        for star in range(1, 6):
+            movie_path = os.path.join(self.movie_folder, str(star))
 
             self.txt_files.append([(star, txt_file)
                                    for txt_file in load_txts_in_folder(movie_path)])
@@ -99,42 +99,51 @@ class MovieReviewDataset:
     def format_txts_files(self):
         self.formatted_txt_files = []
 
-        for label, txt_file in self.txt_files:
-            review = txt_file[REVIEW_LINE]
+        for review_grades in self.txt_files:
+            formatted_grade_txt = []
+            for label, txt_file in review_grades:
+                review = txt_file[REVIEW_LINE]
 
-            if self.remove_director:
-                review = self.remove_director_from_review(txt_file)
+                if self.remove_director:
+                    review = self.remove_director_from_review(txt_file)
 
-            if self.remove_actor:
-                review = self.remove_actors_from_review(txt_file)
+                if self.remove_actor:
+                    review = self.remove_actors_from_review(txt_file)
 
-            if self.remove_title:
-                review = self.remove_title(txt_file)
+                if self.remove_title:
+                    review = self.remove_title(txt_file)
 
-            self.format_txts_files.append((label, review))
+                formatted_grade_txt.append((label, review))
 
-    def split_dataset(self, percent):
+            self.formatted_txt_files.append(formatted_grade_txt)
+
+    def split_dataset(self, use_formatted, percent):
         self.split_files = []
-        for txt_file in self.txt_files:
+        files = self.formatted_txt_files if use_formatted else self.txt_files
+
+        for txt_file in files:
             txt_file, split_file = split_files(txt_file, percent=percent)
 
             self.split_files.append((txt_file, split_file))
 
     def generate_train_dataset(self):
         self.train_dataset = []
-        self.train_dataset.extend([txt_file for txt_file, _ in self.split_files])
+
+        for txt_file, _ in self.split_files:
+            self.train_dataset.extend(txt_file)
 
     def generate_validation_dataset(self):
         self.validation_dataset = []
-        self.validation_dataset.extend(
-            [split_file for _, split_file in self.split_files[:len(self.split_files) // 2]])
+
+        for _, split_file in self.split_files:
+            self.validation_dataset.extend(split_file[:len(split_file) // 2])
 
     def generate_test_dataset(self):
         self.test_dataset = []
-        self.test_dataset.extend(
-            [split_file for _, split_file in self.split_files[len(self.split_files) // 2:]])
+        for _, split_file in self.split_files:
+            self.test_dataset.extend(split_file[len(split_file) // 2:])
 
-    def combine_datasets(self):
+    def extract_dataset(self):
         self.generate_train_dataset()
         self.generate_validation_dataset()
         self.generate_test_dataset()
@@ -142,5 +151,5 @@ class MovieReviewDataset:
     def create_dataset(self, percent=0.2):
         self.load_movies_txts()
         self.format_txts_files()
-        self.split_dataset(percent=percent)
+        self.split_dataset(use_formatted=True, percent=percent)
         self.extract_dataset()
