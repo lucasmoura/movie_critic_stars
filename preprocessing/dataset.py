@@ -5,6 +5,8 @@ import re
 from website_crawler.movie_reviews_downloader import (INVALID_DIRECTOR, INVALID_ACTORS,
                                                       INVALID_MOVIE_TITLE)
 
+from preprocessing.text_preprocessing import TextPreprocessing
+
 
 TITLE_LINE = 0
 DIRECTORS_LINE = 1
@@ -57,6 +59,8 @@ class MovieReviewDataset:
         self.actor_str = actor_str
         self.title_str = title_str
 
+        self.text_preprocessing = TextPreprocessing()
+
     def load_movies_txts(self):
         self.txt_files = []
 
@@ -68,9 +72,11 @@ class MovieReviewDataset:
 
         return self.txt_files
 
-    def remove_text_from_review(self, text, txt_file, invalid_text, should_split, replacement_str):
+    def remove_text_from_review(self, text, txt_file, review,
+                                invalid_text, should_split, replacement_str):
         if text == invalid_text:
-            return txt_file[REVIEW_LINE]
+            print('Aqui', text)
+            return review
 
         regex_str = text
 
@@ -79,21 +85,21 @@ class MovieReviewDataset:
 
         regex = r'|'.join(regex_str)
 
-        return replace_in_text(regex, txt_file[REVIEW_LINE], replacement_str)
+        return replace_in_text(regex, review, replacement_str)
 
-    def remove_director_from_review(self, txt_file):
+    def remove_director_from_review(self, txt_file, review):
         directors = txt_file[DIRECTORS_LINE]
-        return self.remove_text_from_review(directors, txt_file, INVALID_DIRECTOR, True,
+        return self.remove_text_from_review(directors, txt_file, review, INVALID_DIRECTOR, True,
                                             self.director_str)
 
-    def remove_actors_from_review(self, txt_file):
+    def remove_actors_from_review(self, txt_file, review):
         actors = txt_file[ACTORS_LINE]
-        return self.remove_text_from_review(actors, txt_file, INVALID_ACTORS, True,
+        return self.remove_text_from_review(actors, txt_file, review, INVALID_ACTORS, True,
                                             self.actor_str)
 
-    def remove_title_from_review(self, txt_file):
+    def remove_title_from_review(self, txt_file, review):
         title = txt_file[TITLE_LINE]
-        return self.remove_text_from_review(title, txt_file, INVALID_MOVIE_TITLE, True,
+        return self.remove_text_from_review(title, txt_file, review, INVALID_MOVIE_TITLE, True,
                                             self.title_str)
 
     def format_txts_files(self):
@@ -101,17 +107,19 @@ class MovieReviewDataset:
 
         for review_grades in self.txt_files:
             formatted_grade_txt = []
+
             for label, txt_file in review_grades:
-                review = txt_file[REVIEW_LINE]
+                review = self.text_preprocessing.remove_extra_spaces(
+                    txt_file[REVIEW_LINE])
 
                 if self.remove_director:
-                    review = self.remove_director_from_review(txt_file)
+                    review = self.remove_director_from_review(txt_file, review)
 
                 if self.remove_actor:
-                    review = self.remove_actors_from_review(txt_file)
+                    review = self.remove_actors_from_review(txt_file, review)
 
                 if self.remove_title:
-                    review = self.remove_title(txt_file)
+                    review = self.remove_title_from_review(txt_file, review)
 
                 formatted_grade_txt.append((label, review))
 

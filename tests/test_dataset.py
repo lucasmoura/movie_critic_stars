@@ -79,7 +79,7 @@ class MovieReviewDatasetTest(unittest.TestCase):
         ]
 
         expected_review = '<director> and <director> are working together again'
-        self.assertEqual(self.movie_dataset.remove_director_from_review(txt_file),
+        self.assertEqual(self.movie_dataset.remove_director_from_review(txt_file, txt_file[3]),
                          expected_review)
 
     def test_remove_actors_from_movie(self):
@@ -94,7 +94,7 @@ class MovieReviewDatasetTest(unittest.TestCase):
         ]
 
         expected_review = '<actors> and <actors> are working together again'
-        self.assertEqual(self.movie_dataset.remove_actors_from_review(txt_file),
+        self.assertEqual(self.movie_dataset.remove_actors_from_review(txt_file, txt_file[3]),
                          expected_review)
 
     def test_remove_title_from_movie(self):
@@ -109,5 +109,5 @@ class MovieReviewDatasetTest(unittest.TestCase):
         ]
 
         expected_review = '<title> is awesome'
-        self.assertEqual(self.movie_dataset.remove_title_from_review(txt_file),
+        self.assertEqual(self.movie_dataset.remove_title_from_review(txt_file, txt_file[3]),
                          expected_review)
