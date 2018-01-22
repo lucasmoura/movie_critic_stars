@@ -47,10 +47,12 @@ def replace_in_text(regex, text, replace_str):
 
 class MovieReviewDataset:
 
-    def __init__(self, movie_folder, remove_director=False, director_str='<director>',
+    def __init__(self, name, movie_folder, remove_director=False, director_str='<director>',
                  remove_actor=False, actor_str='<actor>', remove_title=False,
                  title_str='<title>'):
+        self.name = name
         self.movie_folder = movie_folder
+
         self.remove_director = remove_director
         self.remove_actor = remove_actor
         self.remove_title = remove_title
@@ -75,15 +77,21 @@ class MovieReviewDataset:
     def remove_text_from_review(self, text, txt_file, review,
                                 invalid_text, should_split, replacement_str):
         if text == invalid_text:
-            print('Aqui', text)
             return review
 
-        regex_str = text
+        regex = text
+        regex = regex.replace('+', '\+')
 
         if should_split:
             regex_str = text.split(',')
 
-        regex = r'|'.join(regex_str)
+            # Some of these verifications should be moved to the movie_reviews_downloader script
+            regex_str = [name.strip() for name in regex_str]
+            regex_str = [name.replace('[', '') for name in regex_str]
+            regex_str = [name.replace('(', '\(') for name in regex_str]
+            regex_str = [name.replace(')', '\)') for name in regex_str]
+            regex_str = [name.replace('Com de : ', '') for name in regex_str]
+            regex = r'|'.join(regex_str)
 
         return replace_in_text(regex, review, replacement_str)
 
@@ -99,7 +107,7 @@ class MovieReviewDataset:
 
     def remove_title_from_review(self, txt_file, review):
         title = txt_file[TITLE_LINE]
-        return self.remove_text_from_review(title, txt_file, review, INVALID_MOVIE_TITLE, True,
+        return self.remove_text_from_review(title, txt_file, review, INVALID_MOVIE_TITLE, False,
                                             self.title_str)
 
     def format_txts_files(self):
