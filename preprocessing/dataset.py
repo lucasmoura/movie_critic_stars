@@ -159,6 +159,9 @@ class MovieReviewDataset:
         for _, split_file in self.split_files:
             self.test_dataset.extend(split_file[len(split_file) // 2:])
 
+    def get_num_reviews(self):
+        return len(self.train_dataset) + len(self.validation_dataset) + len(self.test_dataset)
+
     def extract_dataset(self):
         self.generate_train_dataset()
         self.generate_validation_dataset()
@@ -169,3 +172,13 @@ class MovieReviewDataset:
         self.format_txts_files()
         self.split_dataset(use_formatted=True, percent=percent)
         self.extract_dataset()
+
+    def print_info(self):
+        print('{} Dataset:'.format(self.name.title()))
+        print('Total number of reviews: {}'.format(self.get_num_reviews()))
+        print('1 star reviews: {}'.format(len(self.txt_files[0])))
+        print('2 star reviews: {}'.format(len(self.txt_files[1])))
+        print('3 star reviews: {}'.format(len(self.txt_files[2])))
+        print('4 star reviews: {}'.format(len(self.txt_files[3])))
+        print('5 star reviews: {}'.format(len(self.txt_files[4])))
+        print()
