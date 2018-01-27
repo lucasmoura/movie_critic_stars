@@ -70,7 +70,7 @@ class WordEmbedding:
         if not sentence_size:
             dynamic_sentence_size = True
 
-        for review_index, (review, label) in enumerate(reviews):
+        for review_index, (label, review) in enumerate(reviews):
             words = review.split()
 
             if dynamic_sentence_size:

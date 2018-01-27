@@ -6,6 +6,14 @@ from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strate
 from word_embedding.word_embedding import FastTextEmbedding
 
 
+def replace_unknown_words(train, validation, test, word_embedding):
+    train = word_embedding.handle_unknown_words(train, sentence_size=None)
+    validation = word_embedding.handle_unknown_words(validation, sentence_size=None)
+    test = word_embedding.handle_unknown_words(test, sentence_size=None)
+
+    return train, validation, test
+
+
 def load_embeddings(user_args, vocab):
     embedding_file = user_args['embedding_file']
     embed_size = user_args['embed_size']
@@ -167,6 +175,10 @@ def main():
 
     print('Apply data preprocessing step to datasets ...')
     train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
+
+    print('Find and replacing unknown words for reviews...')
+    train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
+    print()
 
 
 if __name__ == '__main__':
