@@ -2,7 +2,29 @@ import argparse
 import random
 
 from preprocessing.dataset import MovieReviewDataset
-from preprocessing.text_preprocessing import get_vocab
+from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
+
+
+def apply_preprocessing(reviews_array, preprocessing_strat):
+    preprocessed_reviews = []
+    for (label, review) in reviews_array:
+        preprocessed_review = preprocessing_strat.apply_preprocessing(review)
+
+        preprocessed_reviews.append((label, preprocessed_review))
+
+    return preprocessed_reviews
+
+
+def apply_preprocessing_to_dataset(train, validation, test, user_args):
+    preprocessing_type = user_args['preprocessing_type']
+    stopwords_path = user_args['stopwords_path']
+    preprocessing_strat = get_preprocessing_strategy(preprocessing_type, stopwords_path)
+
+    preprocessed_train = apply_preprocessing(train, preprocessing_strat)
+    preprocessed_validation = apply_preprocessing(validation, preprocessing_strat)
+    preprocessed_test = apply_preprocessing(test, preprocessing_strat)
+
+    return preprocessed_train, preprocessed_validation, preprocessed_test
 
 
 def combine_datasets(omelete_dataset, cec_dataset, cineclick_dataset):
@@ -102,10 +124,15 @@ def main():
     cineclick_dataset.print_info()
     cec_dataset.print_info()
 
+    print('Combining datasets ...')
     train, validation, test = combine_datasets(
         omelete_dataset, cec_dataset, cineclick_dataset)
 
+    print('Creating vocabulary ...')
     train_vocab = get_vocab(train)
+
+    print('Apply data preprocessing step to datasets ...')
+    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
 
 
 if __name__ == '__main__':
