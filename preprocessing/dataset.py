@@ -174,11 +174,17 @@ class MovieReviewDataset:
         self.extract_dataset()
 
     def print_info(self):
+        print('--------------------------------------')
         print('{} Dataset:'.format(self.name.title()))
         print('Total number of reviews: {}'.format(self.get_num_reviews()))
+        print('Train dataset: {}'.format(len(self.train_dataset)))
+        print('Validation dataset: {}'.format(len(self.validation_dataset)))
+        print('Test dataset: {}'.format(len(self.test_dataset)))
+        print('\nNumber of revies')
         print('1 star reviews: {}'.format(len(self.txt_files[0])))
         print('2 star reviews: {}'.format(len(self.txt_files[1])))
         print('3 star reviews: {}'.format(len(self.txt_files[2])))
         print('4 star reviews: {}'.format(len(self.txt_files[3])))
         print('5 star reviews: {}'.format(len(self.txt_files[4])))
+        print('--------------------------------------')
         print()
