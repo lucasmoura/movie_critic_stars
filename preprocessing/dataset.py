@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import pickle
 
 from website_crawler.movie_reviews_downloader import (INVALID_DIRECTOR, INVALID_ACTORS,
                                                       INVALID_MOVIE_TITLE)
@@ -45,6 +46,16 @@ def replace_in_text(regex, text, replace_str):
     return re.sub(regex, replace_str, text)
 
 
+def save(data, path):
+    with open(path, 'wb') as f:
+        pickle.dump(data, f)
+
+
+def load(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)
+
+
 class MovieReviewDataset:
 
     def __init__(self, name, movie_folder, remove_director=False, director_str='<director>',
@@ -52,6 +63,11 @@ class MovieReviewDataset:
                  title_str='<title>'):
         self.name = name
         self.movie_folder = movie_folder
+
+        self.train_path = os.path.join(self.movie_folder, 'train.pkl')
+        self.validation_path = os.path.join(self.movie_folder, 'validation.pkl')
+        self.test_path = os.path.join(self.movie_folder, 'test.pkl')
+        self.txts_review_path = os.path.join(self.movie_folder, 'txts.pkl')
 
         self.remove_director = remove_director
         self.remove_actor = remove_actor
@@ -167,11 +183,36 @@ class MovieReviewDataset:
         self.generate_validation_dataset()
         self.generate_test_dataset()
 
-    def create_dataset(self, percent=0.2):
-        self.load_movies_txts()
-        self.format_txts_files()
-        self.split_dataset(use_formatted=True, percent=percent)
-        self.extract_dataset()
+    def save_dataset(self):
+        save(self.train_dataset, self.train_path)
+        save(self.validation_dataset, self.validation_path)
+        save(self.test_dataset, self.test_path)
+        save(self.txt_files, self.txts_review_path)
+
+    def load_dataset(self):
+        self.train_dataset = load(self.train_path)
+        self.validation_dataset = load(self.validation_path)
+        self.test_dataset = load(self.test_path)
+        self.txt_files = load(self.txts_review_path)
+
+    def create_dataset(self, percent=0.2, verbose=True):
+        if (os.path.exists(self.train_path) and os.path.exists(self.validation_path) and
+                os.path.exists(self.test_path)):
+
+            if verbose:
+                print('Loading {} datasets ...'.format(self.name))
+
+            self.load_dataset()
+        else:
+
+            if verbose:
+                print('Creating {} datasets ...'.format(self.name))
+
+            self.load_movies_txts()
+            self.format_txts_files()
+            self.split_dataset(use_formatted=True, percent=percent)
+            self.extract_dataset()
+            self.save_dataset()
 
     def print_info(self):
         print('--------------------------------------')
