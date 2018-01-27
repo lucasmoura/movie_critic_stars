@@ -1,6 +1,25 @@
 import argparse
+import random
 
 from preprocessing.dataset import MovieReviewDataset
+from preprocessing.text_preprocessing import get_vocab
+
+
+def combine_datasets(omelete_dataset, cec_dataset, cineclick_dataset):
+    train_dataset = omelete_dataset.train_dataset + cec_dataset.train_dataset
+    train_dataset = train_dataset + cineclick_dataset.train_dataset
+
+    validation_dataset = omelete_dataset.validation_dataset + cec_dataset.validation_dataset
+    validation_dataset = validation_dataset + cineclick_dataset.validation_dataset
+
+    test_dataset = omelete_dataset.test_dataset + cec_dataset.test_dataset
+    test_dataset = test_dataset + cineclick_dataset.test_dataset
+
+    random.shuffle(train_dataset)
+    random.shuffle(validation_dataset)
+    random.shuffle(test_dataset)
+
+    return train_dataset, validation_dataset, test_dataset
 
 
 def create_argument_parser():
@@ -82,6 +101,11 @@ def main():
     omelete_dataset.print_info()
     cineclick_dataset.print_info()
     cec_dataset.print_info()
+
+    train, validation, test = combine_datasets(
+        omelete_dataset, cec_dataset, cineclick_dataset)
+
+    train_vocab = get_vocab(train)
 
 
 if __name__ == '__main__':

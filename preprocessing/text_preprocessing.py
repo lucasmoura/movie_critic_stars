@@ -1,11 +1,37 @@
 import re
 import unicodedata
 
+from tensorflow.contrib import learn
+
 
 def get_preprocessing_strategy(preprocessing_type, stopwords_path):
 
     if preprocessing_type == 'bag_of_words':
         return BagOfWordsPreprocessing(stopwords_path)
+
+
+def get_maximum_size_review(reviews_array):
+    max_size = -1
+
+    for _, review in reviews_array:
+        review = review.split()
+        if len(review) > max_size:
+            max_size = len(review)
+
+    return max_size
+
+
+def get_vocab(reviews_array):
+    max_size = get_maximum_size_review(reviews_array)
+
+    vocabulary_processor = learn.preprocessing.VocabularyProcessor(max_size)
+    reviews_array = [review for _, review in reviews_array]
+    vocabulary_processor.fit(reviews_array)
+
+    vocab = vocabulary_processor.vocabulary_._mapping
+    sorted_vocab = sorted(vocab.items(), key=lambda x: x[1])
+
+    return sorted_vocab
 
 
 class TextPreprocessing:
