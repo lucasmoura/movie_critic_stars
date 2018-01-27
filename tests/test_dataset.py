@@ -6,7 +6,7 @@ from preprocessing.dataset import MovieReviewDataset
 class MovieReviewDatasetTest(unittest.TestCase):
 
     def setUp(self):
-        self.movie_dataset = MovieReviewDataset(None)
+        self.movie_dataset = MovieReviewDataset(None, 'movie_folder')
 
     def test_split_dataset(self):
         self.movie_dataset.txt_files = [
