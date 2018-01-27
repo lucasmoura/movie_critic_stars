@@ -1,9 +1,48 @@
 import argparse
+import os
 import random
 
-from preprocessing.dataset import MovieReviewDataset
+from preprocessing.dataset import MovieReviewDataset, save
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
 from word_embedding.word_embedding import FastTextEmbedding
+
+
+def save_datasets(train, validation, test, save_datasets_path):
+    if not os.path.exists(save_datasets_path):
+        os.makedirs(save_datasets_path)
+
+    train_save_path = os.path.join(save_datasets_path, 'train.pkl')
+    save(train, train_save_path)
+
+    validation_save_path = os.path.join(save_datasets_path, 'validation.pkl')
+    save(validation, validation_save_path)
+
+    test_save_path = os.path.join(save_datasets_path, 'test.pkl')
+    save(test, test_save_path)
+
+
+def sentence_to_id_list(sentence, word_index):
+    return [word_index[word] for word in sentence.split()]
+
+
+def transform_sentences(reviews, word_index):
+    transformed_sentences = []
+
+    for label, review in reviews:
+        review_id_list = sentence_to_id_list(review, word_index)
+        size = len(review_id_list)
+
+        transformed_sentences.append((review_id_list, label, size))
+
+    return transformed_sentences
+
+
+def transform_all_datasets(train, validation, test, word_index):
+    train = transform_sentences(train, word_index)
+    validation = transform_sentences(validation, word_index)
+    test = transform_sentences(test, word_index)
+
+    return train, validation, test
 
 
 def replace_unknown_words(train, validation, test, word_embedding):
@@ -115,6 +154,11 @@ def create_argument_parser():
                         '--embed-size',
                         type=int,
                         help='The embedding size of the embedding file')
+
+    parser.add_argument('-sdp',
+                        '--save-datasets-path',
+                        type=str,
+                        help='The path to save the processed dataset')
     return parser
 
 
@@ -167,18 +211,26 @@ def main():
     train, validation, test = combine_datasets(
         omelete_dataset, cec_dataset, cineclick_dataset)
 
+    print('Apply data preprocessing step to datasets ...')
+    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
+
     print('Creating vocabulary ...')
     train_vocab = get_vocab(train)
 
     word_embedding = load_embeddings(user_args, train_vocab)
     word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
 
-    print('Apply data preprocessing step to datasets ...')
-    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
-
     print('Find and replacing unknown words for reviews...')
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
     print()
+
+    print('Transforming reviews into list of ids ...')
+    train, validation, test = transform_all_datasets(train, validation, test, word_index)
+    print()
+
+    print('Saving datasets ...')
+    save_datasets_path = user_args['save_datasets_path']
+    save_datasets(train, validation, test, save_datasets_path)
 
 
 if __name__ == '__main__':

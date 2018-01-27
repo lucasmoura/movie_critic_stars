@@ -17,6 +17,8 @@ EMBEDDING_PATH="data/fasttext/fasttext.pkl"
 EMBEDDING_WORDINDEX_PATH="data/fasttext/fasttext_word_index.pkl"
 EMBED_SIZE=300
 
+SAVE_DATASETS_PATH="data/$PREPROCESSING_TYPE"
+
 python preprocess_dataset.py \
     --omelete-folder=${OMELETE_REVIEWS_FOLDER} \
     --cec-folder=${CINEMA_EM_CENA_REVIEWS_FOLDER} \
@@ -26,4 +28,5 @@ python preprocess_dataset.py \
     --embedding-file=${FASTTEXT_FILE} \
     --embedding-path=${EMBEDDING_PATH} \
     --embedding-wordindex-path=${EMBEDDING_WORDINDEX_PATH} \
-    --embed-size=${EMBED_SIZE}
+    --embed-size=${EMBED_SIZE} \
+    --save-datasets-path=${SAVE_DATASETS_PATH}

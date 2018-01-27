@@ -81,7 +81,7 @@ class WordEmbedding:
                     words[index] = UNK_TOKEN
 
             review = ' '.join(words)
-            processed_reviews.append((review, label))
+            processed_reviews.append((label, review))
 
             if progbar:
                 progbar.update(review_index + 1, [])
