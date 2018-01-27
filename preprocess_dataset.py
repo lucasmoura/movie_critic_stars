@@ -3,6 +3,17 @@ import random
 
 from preprocessing.dataset import MovieReviewDataset
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
+from word_embedding.word_embedding import FastTextEmbedding
+
+
+def load_embeddings(user_args, vocab):
+    embedding_file = user_args['embedding_file']
+    embed_size = user_args['embed_size']
+    embedding_path = user_args['embedding_path']
+    embedding_wordindex_path = user_args['embedding_wordindex_path']
+
+    return FastTextEmbedding(embedding_file, embed_size, vocab, embedding_path,
+                             embedding_wordindex_path)
 
 
 def apply_preprocessing(reviews_array, preprocessing_strat):
@@ -76,6 +87,26 @@ def create_argument_parser():
                         type=str,
                         help='The path of the stop words file',
                         required=True)
+
+    parser.add_argument('-ef',
+                        '--embedding-file',
+                        type=str,
+                        help='The location of the embedding file')
+
+    parser.add_argument('-ep',
+                        '--embedding-path',
+                        type=str,
+                        help='Location of the embedding file (Testing Dataset Only)')
+
+    parser.add_argument('-ewi',
+                        '--embedding-wordindex-path',
+                        type=str,
+                        help='Location of the embedding word index file (Testing Dataset Only)')
+
+    parser.add_argument('-es',
+                        '--embed-size',
+                        type=int,
+                        help='The embedding size of the embedding file')
     return parser
 
 
@@ -130,6 +161,9 @@ def main():
 
     print('Creating vocabulary ...')
     train_vocab = get_vocab(train)
+
+    word_embedding = load_embeddings(user_args, train_vocab)
+    word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
 
     print('Apply data preprocessing step to datasets ...')
     train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
