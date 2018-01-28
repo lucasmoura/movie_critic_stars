@@ -4,6 +4,7 @@ import random
 
 from preprocessing.dataset import MovieReviewDataset, save
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
+from preprocessing.tfrecord import SentenceTFRecord
 from word_embedding.word_embedding import FastTextEmbedding
 
 
@@ -37,7 +38,24 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
 
     print('Saving datasets ...')
     save_datasets(train, validation, test, save_datasets_path)
+
+    print('Transforming train reviews into tfrecords ...')
+    output_path = os.path.join(save_datasets_path, 'train.tfrecord')
+    create_tfrecords(train, output_path)
+
+    print('Transforming validation reviews into tfrecords ...')
+    output_path = os.path.join(save_datasets_path, 'validation.tfrecord')
+    create_tfrecords(validation, output_path)
+
+    print('Transforming test reviews into tfrecords ...')
+    output_path = os.path.join(save_datasets_path, 'test.tfrecord')
+    create_tfrecords(test, output_path)
     print()
+
+
+def create_tfrecords(reviews, output_path):
+    sentence_tfrecord = SentenceTFRecord(reviews, output_path)
+    sentence_tfrecord.parse_sentences()
 
 
 def save_datasets(train, validation, test, save_datasets_path):
