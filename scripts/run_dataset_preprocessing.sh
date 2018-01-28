@@ -13,8 +13,8 @@ PREPROCESSING_TYPE="bag_of_words"
 STOPWORDS_PATH="preprocessing/files/stopwords.txt"
 
 FASTTEXT_FILE="data/fasttext/wiki.pt.bin"
-EMBEDDING_PATH="data/fasttext/fasttext.pkl"
-EMBEDDING_WORDINDEX_PATH="data/fasttext/fasttext_word_index.pkl"
+EMBEDDING_PATH="fasttext.pkl"
+EMBEDDING_WORDINDEX_PATH="fasttext_word_index.pkl"
 EMBED_SIZE=300
 
 SAVE_DATASETS_PATH="data/$PREPROCESSING_TYPE"

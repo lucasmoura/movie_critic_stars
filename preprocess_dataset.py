@@ -7,10 +7,40 @@ from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strate
 from word_embedding.word_embedding import FastTextEmbedding
 
 
-def save_datasets(train, validation, test, save_datasets_path):
+def full_preprocessing(train, validation, test, user_args, save_datasets_path):
     if not os.path.exists(save_datasets_path):
         os.makedirs(save_datasets_path)
 
+    print('Apply data preprocessing step to datasets ...')
+    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
+
+    print('Creating vocabulary ...')
+    train_vocab = get_vocab(train)
+    print('Found vocab with size: {} ...'.format(len(train_vocab)))
+
+    embedding_file = user_args['embedding_file']
+    embed_size = user_args['embed_size']
+    embedding_path = os.path.join(save_datasets_path, user_args['embedding_path'])
+    embedding_wordindex_path = os.path.join(
+        save_datasets_path, user_args['embedding_wordindex_path'])
+
+    word_embedding = load_embeddings(
+        train_vocab, embedding_file, embed_size, embedding_path, embedding_wordindex_path)
+    word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
+    print('Embedding size: {}'.format(len(matrix)))
+
+    print('Find and replacing unknown words for reviews...')
+    train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
+
+    print('Transforming reviews into list of ids ...')
+    train, validation, test = transform_all_datasets(train, validation, test, word_index)
+
+    print('Saving datasets ...')
+    save_datasets(train, validation, test, save_datasets_path)
+    print()
+
+
+def save_datasets(train, validation, test, save_datasets_path):
     train_save_path = os.path.join(save_datasets_path, 'train.pkl')
     save(train, train_save_path)
 
@@ -53,11 +83,7 @@ def replace_unknown_words(train, validation, test, word_embedding):
     return train, validation, test
 
 
-def load_embeddings(user_args, vocab):
-    embedding_file = user_args['embedding_file']
-    embed_size = user_args['embed_size']
-    embedding_path = user_args['embedding_path']
-    embedding_wordindex_path = user_args['embedding_wordindex_path']
+def load_embeddings(vocab, embedding_file, embed_size, embedding_path, embedding_wordindex_path):
 
     return FastTextEmbedding(embedding_file, embed_size, vocab, embedding_path,
                              embedding_wordindex_path)
@@ -210,27 +236,33 @@ def main():
     print('Combining datasets ...')
     train, validation, test = combine_datasets(
         omelete_dataset, cec_dataset, cineclick_dataset)
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full')
 
-    print('Apply data preprocessing step to datasets ...')
-    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
+    full_preprocessing(train, validation, test, user_args, save_datasets_path)
 
-    print('Creating vocabulary ...')
-    train_vocab = get_vocab(train)
+    print('Creating Omelete preprocessed reviews')
+    train = omelete_dataset.train_dataset
+    validation = omelete_dataset.validation_dataset
+    test = omelete_dataset.test_dataset
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'omelete')
 
-    word_embedding = load_embeddings(user_args, train_vocab)
-    word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
+    full_preprocessing(train, validation, test, user_args, save_datasets_path)
 
-    print('Find and replacing unknown words for reviews...')
-    train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
-    print()
+    print('Creating Cineclick preprocessed reviews')
+    train = cineclick_dataset.train_dataset
+    validation = cineclick_dataset.validation_dataset
+    test = cineclick_dataset.test_dataset
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'cineclick')
 
-    print('Transforming reviews into list of ids ...')
-    train, validation, test = transform_all_datasets(train, validation, test, word_index)
-    print()
+    full_preprocessing(train, validation, test, user_args, save_datasets_path)
 
-    print('Saving datasets ...')
-    save_datasets_path = user_args['save_datasets_path']
-    save_datasets(train, validation, test, save_datasets_path)
+    print('Creating Cinema em Cena preprocessed reviews')
+    train = cec_dataset.train_dataset
+    validation = cec_dataset.validation_dataset
+    test = cec_dataset.test_dataset
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'cec')
+
+    full_preprocessing(train, validation, test, user_args, save_datasets_path)
 
 
 if __name__ == '__main__':
