@@ -11,6 +11,7 @@ class MovieReviewDataset:
         self.num_buckets = num_buckets
 
     def parser(self, tfrecord):
+        feature_names = ['words', 'size']
         context_features = {
             'size': tf.FixedLenFeature([], dtype=tf.int64),
             'label': tf.FixedLenFeature([], dtype=tf.int64)
@@ -26,7 +27,7 @@ class MovieReviewDataset:
         label = tfrecord_parsed[0]['label']
         size = tfrecord_parsed[0]['size']
 
-        return tokens, label, size
+        return dict(zip(feature_names, [tokens, size])), label
 
     def create_dataset(self):
         sentiment_dataset = tf.data.TFRecordDataset(self.data_file).map(self.parser)
@@ -38,12 +39,15 @@ class MovieReviewDataset:
             return dataset.padded_batch(
                     self.batch_size,
                     padded_shapes=(
-                        tf.TensorShape([None]),  # token
-                        tf.TensorShape([]),  # label
+                        {
+                            'words': tf.TensorShape([None]),
+                            'size': tf.TensorShape([])
+                        },
                         tf.TensorShape([]))  # size
                     )
 
-        def key_func(tokens, label, size):
+        def key_func(features, label):
+            size = features['size']
             bucket_id = size // self.bucket_width
 
             return tf.to_int64(tf.minimum(bucket_id, self.num_buckets))
