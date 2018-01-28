@@ -32,13 +32,25 @@ def estimator_spec_for_softmax_classification(logits, labels, mode, params):
                 'logits': logits
             })
 
-    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    softmax_loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    l2_loss = params['weight_decay'] * tf.add_n(
+        [tf.nn.l2_loss(v) for v in tf.trainable_variables()])
+
+    loss = softmax_loss + l2_loss
+
+    logging_hook = tf.train.LoggingTensorHook({}, every_n_iter=100)
+    if params['show_loss']:
+        logging_hook = tf.train.LoggingTensorHook({"loss": loss}, every_n_iter=10)
 
     if mode == tf.estimator.ModeKeys.TRAIN:
         optimizer = tf.train.AdamOptimizer(learning_rate=params['lr'])
         train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
 
-        return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
+        return tf.estimator.EstimatorSpec(
+            mode,
+            loss=loss,
+            train_op=train_op,
+            training_hooks=[logging_hook])
 
     eval_metric_ops = {
         'accuracy': tf.metrics.accuracy(
@@ -58,7 +70,7 @@ def bag_of_words_model(features, labels, mode, params):
     bow_embedding = tf.feature_column.embedding_column(
         bow_column,
         dimension=params['embed_size'],
-        combiner='mean',
+        combiner='sqrtn',
         ckpt_to_load_from=params['ckpt_path'],
         tensor_name_in_ckpt=params['ckpt_tensor_name'])
 
@@ -75,8 +87,18 @@ def bag_of_words_model(features, labels, mode, params):
         rate=params['dropout'],
         training=training)
 
-    logits = tf.layers.dense(
+    h1 = tf.layers.dense(
         bow_dropout,
+        params['num_units'],
+        activation=tf.nn.relu)
+
+    h1_dropout = tf.layers.dropout(
+        h1,
+        rate=params['dropout'],
+        training=training)
+
+    logits = tf.layers.dense(
+        h1_dropout,
         params['num_labels'],
         activation=None)
 

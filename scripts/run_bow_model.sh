@@ -35,9 +35,11 @@ EMBEDDING_CKPT_NAME="tf_embedding"
 EMBEDDING_SIZE=300
 DROPOUT_RATE=0.5
 NUM_LABELS=5
+NUM_UNITS=150
+WEIGHT_DECAY=0.0001
 LEARNING_RATE=0.001
 BATCH_SIZE=32
-NUM_EPOCHS=10
+NUM_EPOCHS=20
 BUCKET_WIDTH=20
 NUM_BUCKETS=20
 
@@ -52,6 +54,8 @@ python bow_model.py \
     --embed-size=${EMBEDDING_SIZE} \
     --dropout=${DROPOUT_RATE} \
     --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
     --learning-rate=${LEARNING_RATE} \
     --batch-size=${BATCH_SIZE} \
     --num-epochs=${NUM_EPOCHS} \

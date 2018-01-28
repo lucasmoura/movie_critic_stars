@@ -71,6 +71,16 @@ def create_argument_parser():
                         type=int,
                         help='The number of labels that a review can be classified')
 
+    parser.add_argument('-nu',
+                        '--num-units',
+                        type=int,
+                        help='Number of units for hidden layer')
+
+    parser.add_argument('-wd',
+                        '--weight-decay',
+                        type=float,
+                        help='Weight decay variable for l2 loss')
+
     parser.add_argument('-lr',
                         '--learning-rate',
                         type=float,
@@ -109,7 +119,13 @@ def main():
     ckpt_tensor_name = user_args['embedding_ckpt_name']
     dropout = user_args['dropout']
     num_labels = user_args['num_labels']
+    num_units = user_args['num_units']
+    weight_decay = user_args['weight_decay']
     lr = user_args['learning_rate']
+    show_loss = False
+
+    if show_loss:
+        tf.logging.set_verbosity(tf.logging.INFO)
 
     classifier = tf.estimator.Estimator(
         model_fn=bag_of_words_model,
@@ -120,7 +136,10 @@ def main():
             'ckpt_tensor_name': ckpt_tensor_name,
             'dropout': dropout,
             'num_labels': num_labels,
-            'lr': lr
+            'num_units': num_units,
+            'weight_decay': weight_decay,
+            'lr': lr,
+            'show_loss': show_loss
         }
     )
 
