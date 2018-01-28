@@ -66,10 +66,14 @@ def bag_of_words_model(features, labels, mode, params):
         features,
         feature_columns=[bow_embedding])
 
+    training = False
+    if mode == tf.estimator.ModeKeys.TRAIN:
+        training = True
+
     bow_dropout = tf.layers.dropout(
         bow,
         rate=params['dropout'],
-        training=params['apply_dropout'])
+        training=training)
 
     logits = tf.layers.dense(
         bow_dropout,

@@ -119,7 +119,6 @@ def main():
             'ckpt_path': ckpt_path,
             'ckpt_tensor_name': ckpt_tensor_name,
             'dropout': dropout,
-            'apply_dropout': True,
             'num_labels': num_labels,
             'lr': lr
         }
@@ -139,8 +138,16 @@ def main():
                 batch_size=batch_size,
                 perform_shuffle=True,
                 bucket_width=bucket_width,
+                num_buckets=num_buckets))
+
+        train_result = classifier.evaluate(
+            input_fn=lambda: input_fn(
+                tfrecord_file=train_file,
+                batch_size=batch_size,
+                perform_shuffle=True,
+                bucket_width=bucket_width,
                 num_buckets=num_buckets),
-            steps=200)
+        )
 
         eval_result = classifier.evaluate(
             input_fn=lambda: input_fn(
@@ -151,7 +158,8 @@ def main():
                 num_buckets=num_buckets)
         )
 
-        print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+        print('Train set accuracy: {accuracy:0.3f}'.format(**train_result))
+        print('Validation set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
 
 
 if __name__ == '__main__':
