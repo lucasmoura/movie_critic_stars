@@ -2,10 +2,15 @@ import argparse
 import os
 import random
 
+import tensorflow as tf
+
 from preprocessing.dataset import MovieReviewDataset, save
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
 from preprocessing.tfrecord import SentenceTFRecord
 from word_embedding.word_embedding import FastTextEmbedding
+
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def full_preprocessing(train, validation, test, user_args, save_datasets_path):
@@ -29,6 +34,8 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
         train_vocab, embedding_file, embed_size, embedding_path, embedding_wordindex_path)
     word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
     print('Embedding size: {}'.format(len(matrix)))
+    print('Saving embedding for tensorflow ...')
+    save_embeddings_as_ckpt(matrix, save_datasets_path)
 
     print('Find and replacing unknown words for reviews...')
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
@@ -51,6 +58,19 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
     output_path = os.path.join(save_datasets_path, 'test.tfrecord')
     create_tfrecords(test, output_path)
     print()
+
+
+def save_embeddings_as_ckpt(embeddings, save_path):
+    tf_embedding = tf.Variable(embeddings, name='tf_embedding')
+
+    save_path = os.path.join(save_path, 'embedding.ckpt')
+    saver = tf.train.Saver({"tf_embedding": tf_embedding})
+
+    with tf.Session() as sess:
+        tf_embedding.initializer.run()
+        print('Embedding shape: {}'.format(
+            sess.run(tf.shape(tf_embedding))))
+        save_path = saver.save(sess, save_path)
 
 
 def create_tfrecords(reviews, output_path):
