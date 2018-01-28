@@ -18,6 +18,22 @@ def input_fn(tfrecord_file, batch_size, perform_shuffle, bucket_width, num_bucke
     return batch_features, batch_labels
 
 
+def eval_confusion_matrix(labels, predictions, num_classes):
+    with tf.variable_scope("eval_confusion_matrix"):
+        con_matrix = tf.confusion_matrix(labels=labels, predictions=predictions,
+                                         num_classes=num_classes)
+
+        con_matrix_sum = tf.Variable(
+            tf.zeros(shape=(num_classes, num_classes), dtype=tf.int32),
+            trainable=False,
+            name="confusion_matrix_result",
+            collections=[tf.GraphKeys.LOCAL_VARIABLES])
+
+        update_op = tf.assign_add(con_matrix_sum, con_matrix)
+
+        return tf.convert_to_tensor(con_matrix_sum), update_op
+
+
 def estimator_spec_for_softmax_classification(logits, labels, mode, params):
 
     """Returns EstimatorSpec instance for softmax classification."""
@@ -54,7 +70,12 @@ def estimator_spec_for_softmax_classification(logits, labels, mode, params):
 
     eval_metric_ops = {
         'accuracy': tf.metrics.accuracy(
-            labels=labels, predictions=predicted_classes)
+            labels=labels, predictions=predicted_classes),
+        'precision': tf.metrics.precision(
+            labels=labels, predictions=predicted_classes),
+        'recall': tf.metrics.recall(
+            labels=labels, predictions=predicted_classes),
+        'confusion_matrix': eval_confusion_matrix(labels, predicted_classes, params['num_labels'])
     }
 
     return tf.estimator.EstimatorSpec(

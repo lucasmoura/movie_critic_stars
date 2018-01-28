@@ -6,8 +6,8 @@ import tensorflow as tf
 from model.estimator import input_fn, bag_of_words_model
 from preprocessing.dataset import load
 
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 def get_num_words(embedding_path):
@@ -177,8 +177,19 @@ def main():
                 num_buckets=num_buckets)
         )
 
-        print('Train set accuracy: {accuracy:0.3f}'.format(**train_result))
-        print('Validation set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+        eval_accuracy = eval_result['accuracy']
+        train_accuracy = train_result['accuracy']
+
+        eval_precision = eval_result['precision']
+        train_precision = train_result['precision']
+
+        eval_recall = eval_result['recall']
+        train_recall = train_result['recall']
+
+        print('Train set metrics: accuracy: {0:.3f}, precision: {1:.3f}, recall: {2:.3f}'.format(
+            train_accuracy, train_precision, train_recall))
+        print('Validation set metrics: accuracy: {0:.3f}, precision: {1:.3f}, recall: {2:.3f}\n'.format(  # noqa
+            eval_accuracy, eval_precision, eval_recall))
 
 
 if __name__ == '__main__':
