@@ -221,7 +221,7 @@ class MovieReviewDataset:
         print('Train dataset: {}'.format(len(self.train_dataset)))
         print('Validation dataset: {}'.format(len(self.validation_dataset)))
         print('Test dataset: {}'.format(len(self.test_dataset)))
-        print('\nNumber of revies')
+        print('\nNumber of reviews')
         print('1 star reviews: {}'.format(len(self.txt_files[0])))
         print('2 star reviews: {}'.format(len(self.txt_files[1])))
         print('3 star reviews: {}'.format(len(self.txt_files[2])))
