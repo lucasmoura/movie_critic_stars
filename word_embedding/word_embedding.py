@@ -24,7 +24,7 @@ class WordEmbedding:
         self.embedding_matrix = []
         self.vocab = []
 
-    def get_word_embedding(self, progbar=None, should_save=True, verbose=True):
+    def get_word_embedding(self, random_unknown=True, should_save=True, verbose=True):
         if self.embedding_save_path and os.path.exists(self.embedding_save_path):
             if verbose:
                 print('Loading saved matrix embeddings...')
@@ -42,7 +42,7 @@ class WordEmbedding:
             if verbose:
                 print('Constructing embeddings...')
 
-            self.prepare_embedding()
+            self.prepare_embedding(random_unknown)
 
             if should_save:
                 with open(self.embedding_save_path, 'wb') as embedding_pkl:
@@ -57,20 +57,27 @@ class WordEmbedding:
         # Add an zero row on to the matrix for padding purposes
         embedding_matrix.append([float(0) for _ in range(self.embed_size)])
 
-    def add_unknown_embedding(self):
+    def add_unknown_embedding(self, random_unknown=True):
         self.vocab.append(UNK_TOKEN)
-        unknown_embedding = np.random.uniform(low=-1, high=1, size=self.embed_size)
-        self.embedding_matrix.append(unknown_embedding.tolist())
+
+        if random_unknown:
+            print('Using random unknown embeddings ...')
+            unknown_embedding = np.random.uniform(low=-1, high=1, size=self.embed_size)
+            self.embedding_matrix.append(unknown_embedding.tolist())
+        else:
+            print('Using zero unknown embeddings ...')
+            self.add_zero_rows(self.embedding_matrix)
+
         self.word_index[UNK_TOKEN] = len(self.word_index) + 1
 
-    def handle_unknown_words(self, reviews, sentence_size, progbar=None):
+    def handle_unknown_words(self, reviews, sentence_size):
         processed_reviews = []
         dynamic_sentence_size = False
 
         if not sentence_size:
             dynamic_sentence_size = True
 
-        for review_index, (label, review) in enumerate(reviews):
+        for label, review in reviews:
             words = review.split()
 
             if dynamic_sentence_size:
@@ -83,16 +90,13 @@ class WordEmbedding:
             review = ' '.join(words)
             processed_reviews.append((label, review))
 
-            if progbar:
-                progbar.update(review_index + 1, [])
-
         return processed_reviews
 
-    def prepare_embedding(self):
+    def prepare_embedding(self, random_unknown):
         word_index, matrix, embedding_vocab = self.load_embedding()
 
         self.add_zero_rows(self.embedding_matrix)
-        self.add_unknown_embedding()
+        self.add_unknown_embedding(random_unknown)
 
         for word, index in self.word_vocab[1:]:
             is_added = self.add_word_embedding(matrix, word_index, word)
@@ -112,7 +116,7 @@ class WordEmbedding:
 
 class FastTextEmbedding(WordEmbedding):
 
-    def load_embedding(self, progbar=None):
+    def load_embedding(self):
         self.fasttext_model = fastText.load_model(self.embedding_path)
 
         return None, None, None

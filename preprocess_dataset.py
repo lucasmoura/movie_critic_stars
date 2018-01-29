@@ -32,7 +32,7 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
 
     word_embedding = load_embeddings(
         train_vocab, embedding_file, embed_size, embedding_path, embedding_wordindex_path)
-    word_index, matrix, embedding_vocab = word_embedding.get_word_embedding()
+    word_index, matrix, embedding_vocab = word_embedding.get_word_embedding(random_unknown=False)
     print('Embedding size: {}'.format(len(matrix)))
     print('Saving embedding for tensorflow ...')
     save_embeddings_as_ckpt(matrix, save_datasets_path)
