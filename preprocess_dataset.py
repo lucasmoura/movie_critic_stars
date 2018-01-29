@@ -4,6 +4,8 @@ import random
 
 import tensorflow as tf
 
+from collections import defaultdict
+
 from preprocessing.dataset import MovieReviewDataset, save
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
 from preprocessing.tfrecord import SentenceTFRecord
@@ -13,7 +15,26 @@ from word_embedding.word_embedding import FastTextEmbedding
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-def full_preprocessing(train, validation, test, user_args, save_datasets_path):
+def perform_underflow(train_dataset):
+    star_reviews = defaultdict(list)
+
+    for label, review in train_dataset:
+        star_reviews[label].append((label, review))
+
+    min_dataset = min([len(value) for value in star_reviews.values()])
+
+    underflow_train_dataset = []
+
+    for value in star_reviews.values():
+        random.shuffle(value)
+        underflow_train_dataset.extend(value[:min_dataset])
+
+    random.shuffle(underflow_train_dataset)
+
+    return underflow_train_dataset
+
+
+def full_preprocessing(train, validation, test, user_args, save_datasets_path, underflow=False):
     if not os.path.exists(save_datasets_path):
         os.makedirs(save_datasets_path)
 
@@ -37,6 +58,9 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
     print('Saving embedding for tensorflow ...')
     save_embeddings_as_ckpt(matrix, save_datasets_path)
 
+    if underflow:
+        train = perform_underflow(train)
+
     print('Find and replacing unknown words for reviews...')
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
 
@@ -45,6 +69,10 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path):
 
     print('Saving datasets ...')
     save_datasets(train, validation, test, save_datasets_path)
+
+    print('Train dataset len: {}'.format(len(train)))
+    print('Validation dataset len: {}'.format(len(validation)))
+    print('Test dataset len: {}'.format(len(test)))
 
     print('Transforming train reviews into tfrecords ...')
     output_path = os.path.join(save_datasets_path, 'train.tfrecord')
@@ -223,6 +251,7 @@ def create_argument_parser():
                         '--save-datasets-path',
                         type=str,
                         help='The path to save the processed dataset')
+
     return parser
 
 
@@ -274,9 +303,14 @@ def main():
     print('Combining datasets ...')
     train, validation, test = combine_datasets(
         omelete_dataset, cec_dataset, cineclick_dataset)
-    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full')
 
+    print('Creating full processed reviews ...')
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full')
     full_preprocessing(train, validation, test, user_args, save_datasets_path)
+
+    print('Creating full processed reviews (with underflow) ...')
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full/underflow')
+    full_preprocessing(train, validation, test, user_args, save_datasets_path, underflow=True)
 
     print('Creating Omelete preprocessed reviews')
     train = omelete_dataset.train_dataset
