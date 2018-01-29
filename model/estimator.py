@@ -71,10 +71,6 @@ def estimator_spec_for_softmax_classification(logits, labels, mode, params):
     eval_metric_ops = {
         'accuracy': tf.metrics.accuracy(
             labels=labels, predictions=predicted_classes),
-        'precision': tf.metrics.precision(
-            labels=labels, predictions=predicted_classes),
-        'recall': tf.metrics.recall(
-            labels=labels, predictions=predicted_classes),
         'confusion_matrix': eval_confusion_matrix(labels, predicted_classes, params['num_labels'])
     }
 

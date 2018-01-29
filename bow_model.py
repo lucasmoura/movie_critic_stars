@@ -15,6 +15,56 @@ def get_num_words(embedding_path):
     return len(matrix)
 
 
+def precision(confusion_matrix, row, num_columns):
+    tp = confusion_matrix[row][row]
+
+    if tp == 0:
+        return 0
+
+    tp_fp = sum([confusion_matrix[j][row] for j in range(num_columns)])
+
+    return tp / tp_fp
+
+
+def recall(confusion_matrix, row, num_columns):
+    tp = confusion_matrix[row][row]
+
+    if tp == 0:
+        return 0
+
+    tp_fn = sum([confusion_matrix[row][j] for j in range(num_columns)])
+
+    return tp / tp_fn
+
+
+def f1(p, r):
+    if p == 0 and r == 0:
+        return 0
+
+    return (2 * (p * r)) / (p + r)
+
+
+def print_metrics_score(result, name):
+
+    confusion_matrix = result['confusion_matrix']
+    accuracy = result['accuracy']
+
+    num_labels = num_columns = confusion_matrix.shape[1]
+
+    print('{0} set accuracy: {1:.3f}'.format(name, accuracy))
+
+    for i in range(num_labels):
+        p = precision(confusion_matrix, i, num_columns)
+        r = recall(confusion_matrix, i, num_columns)
+        f1_score = f1(p, r)
+
+        print(
+            '{0} set metrics for {1} label: precision {2:.3f}, recall: {3:.3f}, f1: {4:.3f}'.format(
+                name, (i+1), p, r, f1_score))
+
+    print()
+
+
 def create_argument_parser():
     parser = argparse.ArgumentParser()
 
@@ -177,19 +227,10 @@ def main():
                 num_buckets=num_buckets)
         )
 
-        eval_accuracy = eval_result['accuracy']
-        train_accuracy = train_result['accuracy']
+        print_metrics_score(train_result, 'Train')
+        print_metrics_score(eval_result, 'Validation')
 
-        eval_precision = eval_result['precision']
-        train_precision = train_result['precision']
-
-        eval_recall = eval_result['recall']
-        train_recall = train_result['recall']
-
-        print('Train set metrics: accuracy: {0:.3f}, precision: {1:.3f}, recall: {2:.3f}'.format(
-            train_accuracy, train_precision, train_recall))
-        print('Validation set metrics: accuracy: {0:.3f}, precision: {1:.3f}, recall: {2:.3f}\n'.format(  # noqa
-            eval_accuracy, eval_precision, eval_recall))
+    print(eval_result['confusion_matrix'])
 
 
 if __name__ == '__main__':
