@@ -78,46 +78,67 @@ def estimator_spec_for_softmax_classification(logits, labels, mode, params):
         mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 
-def bag_of_words_model(features, labels, mode, params):
+def bag_of_words_model(features, mode, params, training, reuse):
+
+    with tf.variable_scope('BagOfWords', reuse=reuse):
+        bow_column = tf.feature_column.categorical_column_with_identity(
+            key='words',
+            num_buckets=params['num_words'])
+
+        bow_embedding = tf.feature_column.embedding_column(
+            bow_column,
+            dimension=params['embed_size'],
+            combiner='sqrtn',
+            ckpt_to_load_from=params['ckpt_path'],
+            tensor_name_in_ckpt=params['ckpt_tensor_name'])
+
+        bow = tf.feature_column.input_layer(
+            features,
+            feature_columns=[bow_embedding])
+
+        bow_dropout = tf.layers.dropout(
+            bow,
+            rate=params['dropout'],
+            training=training)
+
+        h1 = tf.layers.dense(
+            bow_dropout,
+            params['num_units'],
+            activation=tf.nn.relu)
+
+        h1_dropout = tf.layers.dropout(
+            h1,
+            rate=params['dropout'],
+            training=training)
+
+        logits = tf.layers.dense(
+            h1_dropout,
+            params['num_labels'],
+            activation=None)
+
+    return logits
+
+
+def model_fn(features, labels, mode, params):
     labels = labels - 1
-    bow_column = tf.feature_column.categorical_column_with_identity(
-        key='words',
-        num_buckets=params['num_words'])
 
-    bow_embedding = tf.feature_column.embedding_column(
-        bow_column,
-        dimension=params['embed_size'],
-        combiner='sqrtn',
-        ckpt_to_load_from=params['ckpt_path'],
-        tensor_name_in_ckpt=params['ckpt_tensor_name'])
-
-    bow = tf.feature_column.input_layer(
+    logits_train = bag_of_words_model(
         features,
-        feature_columns=[bow_embedding])
+        mode,
+        params,
+        training=True,
+        reuse=False)
 
-    training = False
+    logits_test = bag_of_words_model(
+        features,
+        mode,
+        params,
+        training=False,
+        reuse=True)
+
     if mode == tf.estimator.ModeKeys.TRAIN:
-        training = True
-
-    bow_dropout = tf.layers.dropout(
-        bow,
-        rate=params['dropout'],
-        training=training)
-
-    h1 = tf.layers.dense(
-        bow_dropout,
-        params['num_units'],
-        activation=tf.nn.relu)
-
-    h1_dropout = tf.layers.dropout(
-        h1,
-        rate=params['dropout'],
-        training=training)
-
-    logits = tf.layers.dense(
-        h1_dropout,
-        params['num_labels'],
-        activation=None)
+        return estimator_spec_for_softmax_classification(
+            logits_train, labels, mode, params)
 
     return estimator_spec_for_softmax_classification(
-        logits=logits, labels=labels, mode=mode, params=params)
+        logits_test, labels, mode, params)

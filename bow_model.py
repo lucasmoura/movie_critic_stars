@@ -3,7 +3,7 @@ import os
 
 import tensorflow as tf
 
-from model.estimator import input_fn, bag_of_words_model
+from model.estimator import input_fn, model_fn
 from preprocessing.dataset import load
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -178,7 +178,7 @@ def main():
         tf.logging.set_verbosity(tf.logging.INFO)
 
     classifier = tf.estimator.Estimator(
-        model_fn=bag_of_words_model,
+        model_fn=model_fn,
         params={
             'num_words': get_num_words(embedding_path),
             'embed_size': embed_size,
@@ -200,7 +200,7 @@ def main():
     num_buckets = user_args['num_buckets']
 
     for i in range(num_epochs):
-        print('Running on epoch {}'.format(i+1))
+        print('Running epoch {}'.format(i+1))
         classifier.train(
             input_fn=lambda: input_fn(
                 tfrecord_file=train_file,
