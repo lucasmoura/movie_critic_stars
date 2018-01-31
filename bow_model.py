@@ -2,6 +2,9 @@ import argparse
 import os
 import itertools
 
+import matplotlib
+matplotlib.use('Agg')  # noqa
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -51,7 +54,7 @@ def save_model_metrics(result, train_accuracies, validation_accuracies, save_pat
 
     save_path = Path(save_path)
 
-    confusion_matrix_path = save_path / 'test_confusion_matrix.pkl'
+    confusion_matrix_path = save_path / 'test_confusion_matrix.png'
     save_confusion_matrix(result['confusion_matrix'], confusion_matrix_path)
 
     test_accuracy_path = save_path / 'test_accuracy.pkl'
