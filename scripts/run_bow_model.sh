@@ -8,25 +8,36 @@ set -e
 FULL_TRAIN_FILE="data/bag_of_words/full/train.tfrecord"
 FULL_VALIDATION_FILE="data/bag_of_words/full/validation.tfrecord"
 FULL_TEST_FILE="data/bag_of_words/full/test.tfrecord"
+FULL_SAVE_PATH="data/bag_of_words/full/model/"
+
+FULL_UNDERFLOW_TRAIN_FILE="data/bag_of_words/full/underflow/train.tfrecord"
+FULL_UNDERFLOW_VALIDATION_FILE="data/bag_of_words/full/underflow/validation.tfrecord"
+FULL_UNDERFLOW_TEST_FILE="data/bag_of_words/full/underflow/test.tfrecord"
+FULL_UNDERFLOW_SAVE_PATH="data/bag_of_words/full/underflow/model/"
 
 OMELETE_TRAIN_FILE="data/bag_of_words/omelete/train.tfrecord"
 OMELETE_VALIDATION_FILE="data/bag_of_words/omelete/validation.tfrecord"
 OMELETE_TEST_FILE="data/bag_of_words/omelete/test.tfrecord"
+OMELETE_SAVE_PATH="data/bag_of_words/omelete/model/"
 
 CEC_TRAIN_FILE="data/bag_of_words/cec/train.tfrecord"
 CEC_VALIDATION_FILE="data/bag_of_words/cec/validation.tfrecord"
 CEC_TEST_FILE="data/bag_of_words/cec/test.tfrecord"
+CEC_SAVE_PATH="data/bag_of_words/cec/model/"
 
 CINECLICK_TRAIN_FILE="data/bag_of_words/cineclick/train.tfrecord"
 CINECLICK_VALIDATION_FILE="data/bag_of_words/cineclick/validation.tfrecord"
 CINECLICK_TEST_FILE="data/bag_of_words/cineclick/test.tfrecord"
+CINECLICK_SAVE_PATH="data/bag_of_words/cineclick/model/"
 
 FULL_EMBEDDING_PATH="data/bag_of_words/full/fasttext.pkl"
+FULL_UNDERFLOW_EMBEDDING_PATH="data/bag_of_words/full/underflow/fasttext.pkl"
 OMELETE_EMBEDDING_PATH="data/bag_of_words/omelete/fasttext.pkl"
 CEC_EMBEDDING_PATH="data/bag_of_words/cec/fasttext.pkl"
 CINECLICK_EMBEDDING_PATH="data/bag_of_words/cineclick/fasttext.pkl"
 
 FULL_EMBEDDING_CKPT="data/bag_of_words/full/embedding.ckpt"
+FULL_UNDERFLOW_EMBEDDING_CKPT="data/bag_of_words/full/underflow/embedding.ckpt"
 OMELETE_EMBEDDING_CKPT="data/bag_of_words/omelete/embedding.ckpt"
 CEC_EMBEDDING_CKPT="data/bag_of_words/cec/embedding.ckpt"
 CINECLICK_EMBEDDING_CKPT="data/bag_of_words/cineclick/embedding.ckpt"
@@ -39,17 +50,100 @@ NUM_UNITS=150
 WEIGHT_DECAY=0.0001
 LEARNING_RATE=0.001
 BATCH_SIZE=32
-NUM_EPOCHS=15
+NUM_EPOCHS=2
 BUCKET_WIDTH=30
 NUM_BUCKETS=30
 
-
+echo "Run full model without underflow"
 python bow_model.py \
     --train-file=${FULL_TRAIN_FILE} \
     --validation-file=${FULL_VALIDATION_FILE} \
     --test-file=${FULL_TEST_FILE} \
+    --save-path=${FULL_SAVE_PATH} \
     --embedding-path=${FULL_EMBEDDING_PATH} \
     --embedding-ckpt=${FULL_EMBEDDING_CKPT} \
+    --embedding-ckpt-name=${EMBEDDING_CKPT_NAME} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --dropout=${DROPOUT_RATE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+NUM_EPOCHS=30
+
+echo "Run full model with underflow"
+python bow_model.py \
+    --train-file=${FULL_UNDERFLOW_TRAIN_FILE} \
+    --validation-file=${FULL_UNDERFLOW_VALIDATION_FILE} \
+    --test-file=${FULL_UNDERFLOW_TEST_FILE} \
+    --save-path=${FULL_UNDERFLOW_SAVE_PATH} \
+    --embedding-path=${FULL_UNDERFLOW_EMBEDDING_PATH} \
+    --embedding-ckpt=${FULL_UNDERFLOW_EMBEDDING_CKPT} \
+    --embedding-ckpt-name=${EMBEDDING_CKPT_NAME} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --dropout=${DROPOUT_RATE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+echo "Run omelete model"
+python bow_model.py \
+    --train-file=${OMELETE_TRAIN_FILE} \
+    --validation-file=${OMELETE_VALIDATION_FILE} \
+    --test-file=${OMELETE_TEST_FILE} \
+    --save-path=${OMELETE_SAVE_PATH} \
+    --embedding-path=${OMELETE_EMBEDDING_PATH} \
+    --embedding-ckpt=${OMELETE_EMBEDDING_CKPT} \
+    --embedding-ckpt-name=${EMBEDDING_CKPT_NAME} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --dropout=${DROPOUT_RATE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+echo "Run cineclick model"
+python bow_model.py \
+    --train-file=${CINECLICK_TRAIN_FILE} \
+    --validation-file=${CINECLICK_VALIDATION_FILE} \
+    --test-file=${CINECLICK_TEST_FILE} \
+    --save-path=${CINECLICK_SAVE_PATH} \
+    --embedding-path=${CINECLICK_EMBEDDING_PATH} \
+    --embedding-ckpt=${CINECLICK_EMBEDDING_CKPT} \
+    --embedding-ckpt-name=${EMBEDDING_CKPT_NAME} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --dropout=${DROPOUT_RATE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+echo "Run Cinema em Cena model"
+python bow_model.py \
+    --train-file=${CEC_TRAIN_FILE} \
+    --validation-file=${CEC_VALIDATION_FILE} \
+    --test-file=${CEC_TEST_FILE} \
+    --save-path=${CEC_SAVE_PATH} \
+    --embedding-path=${CEC_EMBEDDING_PATH} \
+    --embedding-ckpt=${CEC_EMBEDDING_CKPT} \
     --embedding-ckpt-name=${EMBEDDING_CKPT_NAME} \
     --embed-size=${EMBEDDING_SIZE} \
     --dropout=${DROPOUT_RATE} \
