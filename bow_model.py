@@ -1,6 +1,9 @@
 import argparse
 import os
+import itertools
 
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 
 from pathlib import Path
@@ -12,6 +15,36 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 
+def save_confusion_matrix(confusion_matrix, save_path):
+    """ Generate a confusion matrix
+
+        This function is based on the implementation of
+        outputConfusionMatrix from q1_sentiment.py from
+        Stanford's cs224n course
+    """
+
+    plt.figure()
+    plt.imshow(confusion_matrix, interpolation='nearest', cmap=plt.cm.Reds)
+    plt.colorbar()
+    classes = ["1", "2", "3", "4", "5"]
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes)
+    plt.yticks(tick_marks, classes)
+    thresh = confusion_matrix.max() / 2.
+
+    for i, j in itertools.product(
+            range(confusion_matrix.shape[0]), range(confusion_matrix.shape[1])):
+        plt.text(j, i, confusion_matrix[i, j],
+                 horizontalalignment="center",
+                 color="white" if confusion_matrix[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+
+    plt.savefig(str(save_path))
+
+
 def save_model_metrics(result, train_accuracies, validation_accuracies, save_path):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -19,7 +52,7 @@ def save_model_metrics(result, train_accuracies, validation_accuracies, save_pat
     save_path = Path(save_path)
 
     confusion_matrix_path = save_path / 'test_confusion_matrix.pkl'
-    save(result['confusion_matrix'],  confusion_matrix_path)
+    save_confusion_matrix(result['confusion_matrix'], confusion_matrix_path)
 
     test_accuracy_path = save_path / 'test_accuracy.pkl'
     save(result['accuracy'], test_accuracy_path)
