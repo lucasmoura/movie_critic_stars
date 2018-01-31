@@ -18,6 +18,21 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 
+def accuracy_graph(train_accuracies, validation_accuracies, save_path):
+    plt.gcf().clear()
+
+    line1, = plt.plot(train_accuracies, label='Train')
+    line2, = plt.plot(validation_accuracies, label='Validation')
+
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epochs')
+    plt.title('Train vs Validation accuracy')
+    plt.legend(handles=[line1, line2], loc='lower right')
+    plt.tight_layout()
+
+    plt.savefig(save_path)
+
+
 def save_confusion_matrix(confusion_matrix, save_path):
     """ Generate a confusion matrix
 
@@ -26,6 +41,7 @@ def save_confusion_matrix(confusion_matrix, save_path):
         Stanford's cs224n course
     """
 
+    plt.gcf().clear()
     plt.figure()
     plt.imshow(confusion_matrix, interpolation='nearest', cmap=plt.cm.Reds)
     plt.colorbar()
@@ -45,7 +61,7 @@ def save_confusion_matrix(confusion_matrix, save_path):
     plt.xlabel('Predicted label')
     plt.tight_layout()
 
-    plt.savefig(str(save_path))
+    plt.savefig(save_path)
 
 
 def save_model_metrics(result, train_accuracies, validation_accuracies, save_path):
@@ -54,8 +70,11 @@ def save_model_metrics(result, train_accuracies, validation_accuracies, save_pat
 
     save_path = Path(save_path)
 
-    confusion_matrix_path = save_path / 'test_confusion_matrix.png'
-    save_confusion_matrix(result['confusion_matrix'], confusion_matrix_path)
+    confusion_matrix_graph_path = save_path / 'test_confusion_matrix.png'
+    save_confusion_matrix(result['confusion_matrix'], str(confusion_matrix_graph_path))
+
+    confusion_matrix_pickle_path = save_path / 'test_confusion_matrix.pkl'
+    save(result['confusion_matrix'], confusion_matrix_pickle_path)
 
     test_accuracy_path = save_path / 'test_accuracy.pkl'
     save(result['accuracy'], test_accuracy_path)
@@ -65,6 +84,9 @@ def save_model_metrics(result, train_accuracies, validation_accuracies, save_pat
 
     validation_accuracies_path = save_path / 'validation_accuracies.pkl'
     save(validation_accuracies, validation_accuracies_path)
+
+    accuracies_graph_path = save_path / 'accuracies.png'
+    accuracy_graph(train_accuracies, validation_accuracies, str(accuracies_graph_path))
 
 
 def get_num_words(embedding_path):
@@ -310,6 +332,7 @@ def main():
             num_buckets=num_buckets)
     )
 
+    print('Saving model results ...')
     save_model_metrics(test_result, train_accuracies, validation_accuracies, save_path)
 
 
