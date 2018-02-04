@@ -15,7 +15,7 @@ from word_embedding.word_embedding import FastTextEmbedding
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-def perform_underflow(train_dataset):
+def perform_undersampling(train_dataset):
     star_reviews = defaultdict(list)
 
     for label, review in train_dataset:
@@ -23,18 +23,18 @@ def perform_underflow(train_dataset):
 
     min_dataset = min([len(value) for value in star_reviews.values()])
 
-    underflow_train_dataset = []
+    undersampling_train_dataset = []
 
     for value in star_reviews.values():
         random.shuffle(value)
-        underflow_train_dataset.extend(value[:min_dataset])
+        undersampling_train_dataset.extend(value[:min_dataset])
 
-    random.shuffle(underflow_train_dataset)
+    random.shuffle(undersampling_train_dataset)
 
-    return underflow_train_dataset
+    return undersampling_train_dataset
 
 
-def full_preprocessing(train, validation, test, user_args, save_datasets_path, underflow=False):
+def full_preprocessing(train, validation, test, user_args, save_datasets_path, undersampling=False):
     if not os.path.exists(save_datasets_path):
         os.makedirs(save_datasets_path)
 
@@ -58,8 +58,8 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path, u
     print('Saving embedding for tensorflow ...')
     save_embeddings_as_ckpt(matrix, save_datasets_path)
 
-    if underflow:
-        train = perform_underflow(train)
+    if undersampling:
+        train = perform_undersampling(train)
 
     print('Find and replacing unknown words for reviews...')
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
@@ -308,9 +308,9 @@ def main():
     save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full')
     full_preprocessing(train, validation, test, user_args, save_datasets_path)
 
-    print('Creating full processed reviews (with underflow) ...')
-    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full/underflow')
-    full_preprocessing(train, validation, test, user_args, save_datasets_path, underflow=True)
+    print('Creating full processed reviews (with undersampling) ...')
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full/undersampling')
+    full_preprocessing(train, validation, test, user_args, save_datasets_path, undersampling=True)
 
     print('Creating Omelete preprocessed reviews')
     train = omelete_dataset.train_dataset
