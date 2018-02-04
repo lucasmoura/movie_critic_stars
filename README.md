@@ -27,7 +27,7 @@ $ ./scripts/download_all_reviews.sh
 ```
 
 The reviews will be stored in a folder named **data**. Inside this folder, every
-website will possess a folder with the following hierarchy (Using omelete
+website will possess a folder with the following hierarchy (Using Omelete
 website as example):
 
 ```
@@ -67,3 +67,39 @@ Every review file have the following structure:
   contain INVALID\_ACTORS)
 * Fourth line: The movie review
 * Fifth line: The date the review was published
+
+
+Data Pre-processing
+----------------------
+
+To pre-process the data, run the script:
+
+```sh
+$ ./scripts/run_dataset_preprocessing.sh
+```
+
+This script will produce five distinct datasets inside the "data/bag\_of\_words" folder:
+
+* Full: Uses all movie reviews sources to create the dataset
+* Full (Undersampling): Uses all movie reviews sources to create the dataset, but applies the 
+                        undersampling technique to the training dataset.
+* Omelete: Uses only Omelete reviews to create the dataset.
+* Cineclick: Uses only Cineclick reviews to create the dataset.
+* Cec: Uses only Cinema Em Cena reviews to create the dataset.
+
+To better understand how the movies were pre-processed, please read the my [blog post](https://lucasmoura.github.io/blog/2018/01/31/automatic-star-rating-for-movie-reviews-part-2/)
+
+Bag of Words models
+----------------------
+
+To run the Bag Of Words model, just run the script
+
+```sh
+$ ./scripts/run_bow_model.sh
+```
+
+It will run the model for all datasets produced by the preprocessing script.
+The results will be saved inside "data/bag\_of\_words" folder. Inside, every dataset
+will have a corresponding folder. For example, the full dataset will will be located in the folder
+"data/bag\_of\_words/full". The results of running the model for each dataset will be located in the
+"model" dir inside each dataset folder.
