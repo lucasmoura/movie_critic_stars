@@ -101,25 +101,53 @@ def bag_of_words_model(features, mode, params, training, reuse):
             rate=params['dropout'],
             training=training)
 
-        h1 = tf.layers.dense(
-            bow_dropout,
-            params['num_units'],
-            activation=tf.nn.relu)
-
-        h1_dropout = tf.layers.dropout(
-            h1,
-            rate=params['dropout'],
-            training=training)
-
         logits = tf.layers.dense(
-            h1_dropout,
+            bow_dropout,
             params['num_labels'],
             activation=None)
 
     return logits
 
 
-def model_fn(features, labels, mode, params):
+def rnn_model(features, mode, params, training, reuse):
+    with tf.variable_scope('RecurrentModel', reuse=reuse):
+        """RNN model to predict from sequence of words to a class."""
+        base_embeddings = tf.get_variable(
+            'embeddings',
+            shape=(len(params['embedding']), len(params['embedding'][0])),
+            initializer=tf.constant_initializer(params['embedding']),
+            dtype=tf.float32)
+        embeddings_dropout = tf.layers.dropout(
+            base_embeddings,
+            rate=0.5,
+            training=training)
+        inputs = tf.nn.embedding_lookup(embeddings_dropout, features['words'])
+
+        cell = tf.nn.rnn_cell.LSTMCell(128)
+
+        drop_recurrent_cell = tf.nn.rnn_cell.DropoutWrapper(
+            cell,
+            output_keep_prob=params['rate'],
+            state_keep_prob=params['rate'],
+            variational_recurrent=True,
+            input_size=300,
+            dtype=tf.float32)
+
+        _, state = tf.nn.dynamic_rnn(
+            drop_recurrent_cell,
+            inputs,
+            sequence_length=features['size'],
+            dtype=tf.float32)
+
+        logits = tf.layers.dense(
+            state.h,
+            params['num_labels'],
+            activation=None)
+
+        return logits
+
+
+def bow_model_fn(features, labels, mode, params):
     labels = labels - 1
 
     logits_train = bag_of_words_model(
@@ -130,6 +158,33 @@ def model_fn(features, labels, mode, params):
         reuse=False)
 
     logits_test = bag_of_words_model(
+        features,
+        mode,
+        params,
+        training=False,
+        reuse=True)
+
+    if mode == tf.estimator.ModeKeys.TRAIN:
+        return estimator_spec_for_softmax_classification(
+            logits_train, labels, mode, params)
+
+    return estimator_spec_for_softmax_classification(
+        logits_test, labels, mode, params)
+
+
+def rnn_model_fn(features, labels, mode, params):
+    labels = labels - 1
+    params['rate'] = 0.5
+
+    logits_train = rnn_model(
+        features,
+        mode,
+        params,
+        training=True,
+        reuse=False)
+
+    params['rate'] = 1.0
+    logits_test = rnn_model(
         features,
         mode,
         params,
