@@ -8,6 +8,8 @@ def get_preprocessing_strategy(preprocessing_type, stopwords_path):
 
     if preprocessing_type == 'bag_of_words':
         return BagOfWordsPreprocessing(stopwords_path)
+    elif preprocessing_type == 'rnn':
+        return BagOfWordsPreprocessing(None)
 
 
 def get_vocab(reviews_array):
@@ -34,7 +36,8 @@ class TextPreprocessing:
         self.stopwords_path = stopwords_path
         self.stopwords = None
 
-        self.load_stopwords()
+        if self.stopwords_path:
+            self.load_stopwords()
 
     def load_stopwords(self):
         if not self.stopwords and self.stopwords_path:
@@ -70,7 +73,7 @@ class TextPreprocessing:
         formatted_text = self.remove_special_characters_from_text(formatted_text)
         formatted_text = self.remove_extra_spaces(formatted_text)
         formatted_text = self.to_lower(formatted_text)
-        return self.remove_stopwords(formatted_text)
+        return self.remove_stopwords(formatted_text) if self.stopwords else formatted_text
 
 
 class BagOfWordsPreprocessing(TextPreprocessing):
