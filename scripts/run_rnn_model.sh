@@ -37,33 +37,37 @@ CEC_EMBEDDING_PATH="data/rnn/cec/fasttext.pkl"
 CINECLICK_EMBEDDING_PATH="data/rnn/cineclick/fasttext.pkl"
 
 EMBEDDING_SIZE=300
-DROPOUT_RATE=0.5
 NUM_LABELS=5
-NUM_UNITS=150
+NUM_UNITS=128
 WEIGHT_DECAY=0.0001
 LEARNING_RATE=0.001
 BATCH_SIZE=32
 NUM_EPOCHS=15
-BUCKET_WIDTH=30
-NUM_BUCKETS=30
+BUCKET_WIDTH=32
+NUM_BUCKETS=50
+EMBEDDING_DROPOUT=0.5
+LSTM_OUTPUT_DROPOUT=0.5
+LSTM_VARIATIONAL_DROPOUT=0.5
 
-#echo "Run full model without undersampling"
-#python rnn_model.py \
-#    --train-file=${FULL_TRAIN_FILE} \
-#    --validation-file=${FULL_VALIDATION_FILE} \
-#    --test-file=${FULL_TEST_FILE} \
-#    --save-path=${FULL_SAVE_PATH} \
-#    --embedding-path=${FULL_EMBEDDING_PATH} \
-#    --embed-size=${EMBEDDING_SIZE} \
-#    --dropout=${DROPOUT_RATE} \
-#    --num-labels=${NUM_LABELS} \
-#    --num-units=${NUM_UNITS} \
-#    --weight-decay=${WEIGHT_DECAY} \
-#    --learning-rate=${LEARNING_RATE} \
-#    --batch-size=${BATCH_SIZE} \
-#    --num-epochs=${NUM_EPOCHS} \
-#    --bucket-width=${BUCKET_WIDTH} \
-#    --num-buckets=${NUM_BUCKETS}
+echo "Run full model without undersampling"
+python rnn_model.py \
+    --train-file=${FULL_TRAIN_FILE} \
+    --validation-file=${FULL_VALIDATION_FILE} \
+    --test-file=${FULL_TEST_FILE} \
+    --save-path=${FULL_SAVE_PATH} \
+    --embedding-path=${FULL_EMBEDDING_PATH} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
 
 echo "Run full model with undersampling"
 python rnn_model.py \
@@ -73,10 +77,12 @@ python rnn_model.py \
     --save-path=${FULL_UNDERSAMPLING_SAVE_PATH} \
     --embedding-path=${FULL_UNDERSAMPLING_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
-    --dropout=${DROPOUT_RATE} \
     --num-labels=${NUM_LABELS} \
     --num-units=${NUM_UNITS} \
     --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
     --learning-rate=${LEARNING_RATE} \
     --batch-size=${BATCH_SIZE} \
     --num-epochs=${NUM_EPOCHS} \
@@ -91,10 +97,12 @@ python rnn_model.py \
     --save-path=${OMELETE_SAVE_PATH} \
     --embedding-path=${OMELETE_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
-    --dropout=${DROPOUT_RATE} \
     --num-labels=${NUM_LABELS} \
     --num-units=${NUM_UNITS} \
     --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
     --learning-rate=${LEARNING_RATE} \
     --batch-size=${BATCH_SIZE} \
     --num-epochs=${NUM_EPOCHS} \
@@ -109,10 +117,12 @@ python rnn_model.py \
     --save-path=${CINECLICK_SAVE_PATH} \
     --embedding-path=${CINECLICK_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
-    --dropout=${DROPOUT_RATE} \
     --num-labels=${NUM_LABELS} \
     --num-units=${NUM_UNITS} \
     --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
     --learning-rate=${LEARNING_RATE} \
     --batch-size=${BATCH_SIZE} \
     --num-epochs=${NUM_EPOCHS} \
@@ -127,10 +137,12 @@ python rnn_model.py \
     --save-path=${CEC_SAVE_PATH} \
     --embedding-path=${CEC_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
-    --dropout=${DROPOUT_RATE} \
     --num-labels=${NUM_LABELS} \
     --num-units=${NUM_UNITS} \
     --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
     --learning-rate=${LEARNING_RATE} \
     --batch-size=${BATCH_SIZE} \
     --num-epochs=${NUM_EPOCHS} \
