@@ -1,6 +1,73 @@
 import tensorflow as tf
 
 from model.input_pipeline import MovieReviewDataset
+from utils.metrics import print_metrics_score, save_model_metrics
+
+
+def get_estimator(estimator_name):
+    if estimator_name == 'bag_of_words':
+        estimator = BagOfWords()
+    elif estimator_name == 'recurrent':
+        estimator = RecurrentModel()
+
+    return estimator
+
+
+def run_estimator(estimator, model_params, pipeline_params, num_epochs, save_path):
+    classifier = tf.estimator.Estimator(
+        model_fn=estimator.model_fn,
+        params=model_params
+    )
+
+    train_accuracies = []
+    validation_accuracies = []
+
+    for i in range(num_epochs):
+        print('Running epoch {}'.format(i+1))
+        classifier.train(
+            input_fn=lambda: estimator.input_fn(
+                tfrecord_file=pipeline_params['train_file'],
+                batch_size=pipeline_params['batch_size'],
+                perform_shuffle=True,
+                bucket_width=pipeline_params['bucket_width'],
+                num_buckets=pipeline_params['num_buckets'])
+        )
+
+        train_result = classifier.evaluate(
+            input_fn=lambda: estimator.input_fn(
+                tfrecord_file=pipeline_params['train_file'],
+                batch_size=pipeline_params['batch_size'],
+                perform_shuffle=True,
+                bucket_width=pipeline_params['bucket_width'],
+                num_buckets=pipeline_params['num_buckets'])
+        )
+
+        eval_result = classifier.evaluate(
+            input_fn=lambda: estimator.input_fn(
+                tfrecord_file=pipeline_params['validation_file'],
+                batch_size=pipeline_params['batch_size'],
+                perform_shuffle=False,
+                bucket_width=pipeline_params['bucket_width'],
+                num_buckets=pipeline_params['num_buckets'])
+        )
+
+        train_accuracies.append(train_result['accuracy'])
+        validation_accuracies.append(eval_result['accuracy'])
+
+        print_metrics_score(train_result, 'Train')
+        print_metrics_score(eval_result, 'Validation')
+
+    test_result = classifier.evaluate(
+        input_fn=lambda: estimator.input_fn(
+            tfrecord_file=pipeline_params['test_file'],
+            batch_size=pipeline_params['batch_size'],
+            perform_shuffle=False,
+            bucket_width=pipeline_params['bucket_width'],
+            num_buckets=pipeline_params['num_buckets'])
+    )
+
+    print('Saving model results ...')
+    save_model_metrics(test_result, train_accuracies, validation_accuracies, save_path)
 
 
 class ModelEstimator:
