@@ -9,6 +9,8 @@ def get_estimator(estimator_name):
         estimator = BagOfWords()
     elif estimator_name == 'recurrent':
         estimator = RecurrentModel()
+    elif estimator_name == 'cnn':
+        estimator = CNNModel()
 
     return estimator
 
@@ -280,6 +282,87 @@ class RecurrentModel(ModelEstimator):
 
             logits = tf.layers.dense(
                 state.h,
+                params['num_labels'],
+                activation=None)
+
+            return logits
+
+
+class CNNModel(ModelEstimator):
+
+    def preprocess_labels(self, labels):
+        return labels - 1
+
+    def set_training_params(self, params):
+        params['reuse'] = False
+        params['training'] = True
+
+        return params
+
+    def set_test_params(self, params):
+        params['reuse'] = True
+        params['training'] = False
+
+        return params
+
+    def model(self, features, mode, params):
+        with tf.variable_scope('CNNModel', reuse=params['reuse']):
+            """RNN model to predict from sequence of words to a class."""
+            base_embeddings = tf.get_variable(
+                'embeddings',
+                shape=(params['vocab_size'], params['embed_size']),
+                initializer=tf.constant_initializer(params['embedding']),
+                dtype=tf.float32)
+            embeddings_dropout = tf.layers.dropout(
+                base_embeddings,
+                rate=params['embedding_dropout'],
+                training=params['training'])
+            inputs = tf.nn.embedding_lookup(embeddings_dropout, features['words'])
+
+            # Add an extra dimension to inputs for convolutional purposes
+            expanded_inputs = tf.expand_dims(inputs, -1)
+            sequence_length = tf.cast(
+                tf.shape(features['words'][0])[0], tf.int32)
+
+            pooled_outputs = []
+            for i, filter_size in enumerate(params['filters_size']):
+                with tf.name_scope("conv-maxpool-{}".format(filter_size)):
+
+                    conv = tf.layers.conv2d(
+                        inputs=expanded_inputs,
+                        filters=params['num_filters'],
+                        kernel_size=[filter_size, params['embed_size']],
+                        padding='valid',
+                        activation=tf.nn.relu
+                    )
+
+                    max_pool = tf.layers.max_pooling2d(
+                        inputs=conv,
+                        pool_size=[sequence_length - filter_size + 1, 1],
+                        strides=[1, 1],
+                        padding='valid'
+                    )
+
+                pooled_outputs.append(max_pool)
+
+            num_filters_total = params['num_filters'] * len(params['filters_size'])
+
+            """
+            The max_pool operation returns tensor with the following dimension:
+            [batch_size, 1, 1, num_filters]. When applying the concat, we only want to concat
+            the num_filters position.
+            """
+            pool = tf.concat(pooled_outputs, 3)
+            pool_flat = tf.reshape(pool, [-1, num_filters_total])
+
+            drop_pool = tf.layers.dropout(
+                pool_flat,
+                rate=params['dropout_rate'],
+                training=params['training']
+            )
+
+            logits = tf.layers.dense(
+                drop_pool,
                 params['num_labels'],
                 activation=None)
 
