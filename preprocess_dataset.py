@@ -34,12 +34,14 @@ def perform_undersampling(train_dataset):
     return undersampling_train_dataset
 
 
-def full_preprocessing(train, validation, test, user_args, save_datasets_path, undersampling=False):
+def full_preprocessing(train, validation, test, user_args, save_datasets_path,
+                       undersampling=False):
     if not os.path.exists(save_datasets_path):
         os.makedirs(save_datasets_path)
 
     print('Apply data preprocessing step to datasets ...')
-    train, validation, test = apply_preprocessing_to_dataset(train, validation, test, user_args)
+    train, validation, test = apply_preprocessing_to_dataset(
+        train, validation, test, user_args)
 
     print('Creating vocabulary ...')
     train_vocab = get_vocab(train)
@@ -155,10 +157,10 @@ def load_embeddings(vocab, embedding_file, embed_size, embedding_path, embedding
                              embedding_wordindex_path)
 
 
-def apply_preprocessing(reviews_array, preprocessing_strat):
+def apply_preprocessing(reviews_array, preprocessing_strat, text_size):
     preprocessed_reviews = []
     for (label, review) in reviews_array:
-        preprocessed_review = preprocessing_strat.apply_preprocessing(review)
+        preprocessed_review = preprocessing_strat.apply_preprocessing(review, text_size)
 
         preprocessed_reviews.append((label, preprocessed_review))
 
@@ -168,11 +170,12 @@ def apply_preprocessing(reviews_array, preprocessing_strat):
 def apply_preprocessing_to_dataset(train, validation, test, user_args):
     preprocessing_type = user_args['preprocessing_type']
     stopwords_path = user_args['stopwords_path']
+    text_size = user_args['text_size']
     preprocessing_strat = get_preprocessing_strategy(preprocessing_type, stopwords_path)
 
-    preprocessed_train = apply_preprocessing(train, preprocessing_strat)
-    preprocessed_validation = apply_preprocessing(validation, preprocessing_strat)
-    preprocessed_test = apply_preprocessing(test, preprocessing_strat)
+    preprocessed_train = apply_preprocessing(train, preprocessing_strat, text_size)
+    preprocessed_validation = apply_preprocessing(validation, preprocessing_strat, text_size)
+    preprocessed_test = apply_preprocessing(test, preprocessing_strat, text_size)
 
     return preprocessed_train, preprocessed_validation, preprocessed_test
 
@@ -246,6 +249,11 @@ def create_argument_parser():
                         '--embed-size',
                         type=int,
                         help='The embedding size of the embedding file')
+
+    parser.add_argument('-ts',
+                        '--text-size',
+                        type=int,
+                        help='The maximum number of words a review must have')
 
     parser.add_argument('-sdp',
                         '--save-datasets-path',
