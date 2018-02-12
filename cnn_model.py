@@ -68,6 +68,11 @@ def create_argument_parser():
                         type=str,
                         help='A comma separated string containing the filters size to use')
 
+    parser.add_argument('-ts',
+                        '--text-size',
+                        type=int,
+                        help='The maximum number of words a review must have')
+
     parser.add_argument('-wd',
                         '--weight-decay',
                         type=float,
@@ -138,6 +143,7 @@ def main():
     filters_size = user_args['filters_size']
     filters_size = [int(value) for value in filters_size.split(',')]
 
+    text_size = user_args['text_size']
     weight_decay = user_args['weight_decay']
     embedding_dropout = user_args['embedding_dropout']
     dropout_rate = user_args['dropout_rate']
@@ -154,6 +160,7 @@ def main():
         'vocab_size': len(matrix),
         'num_labels': num_labels,
         'num_filters': num_filters,
+        'text_size': text_size,
         'filters_size': filters_size,
         'weight_decay': weight_decay,
         'embedding_dropout': embedding_dropout,

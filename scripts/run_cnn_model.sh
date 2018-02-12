@@ -40,6 +40,7 @@ EMBEDDING_SIZE=300
 NUM_LABELS=5
 NUM_FILTERS=128
 FILTERS_SIZE="2,3,4"
+TEXT_SIZE=500
 WEIGHT_DECAY=0.0001
 LEARNING_RATE=0.001
 BATCH_SIZE=32
@@ -59,6 +60,7 @@ python cnn_model.py \
     --embed-size=${EMBEDDING_SIZE} \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \
+    --text-size=${TEXT_SIZE} \
     --filters-size=${FILTERS_SIZE} \
     --weight-decay=${WEIGHT_DECAY} \
     --embedding-dropout=${EMBEDDING_DROPOUT} \
@@ -79,6 +81,7 @@ python cnn_model.py \
     --embed-size=${EMBEDDING_SIZE} \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \
+    --text-size=${TEXT_SIZE} \
     --filters-size=${FILTERS_SIZE} \
     --weight-decay=${WEIGHT_DECAY} \
     --embedding-dropout=${EMBEDDING_DROPOUT} \
@@ -100,6 +103,7 @@ python cnn_model.py \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \
     --filters-size=${FILTERS_SIZE} \
+    --text-size=${TEXT_SIZE} \
     --weight-decay=${WEIGHT_DECAY} \
     --embedding-dropout=${EMBEDDING_DROPOUT} \
     --dropout-rate=${DROPOUT_RATE} \
@@ -120,6 +124,7 @@ python cnn_model.py \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \
     --filters-size=${FILTERS_SIZE} \
+    --text-size=${TEXT_SIZE} \
     --weight-decay=${WEIGHT_DECAY} \
     --embedding-dropout=${EMBEDDING_DROPOUT} \
     --dropout-rate=${DROPOUT_RATE} \
@@ -139,6 +144,7 @@ python cnn_model.py \
     --embed-size=${EMBEDDING_SIZE} \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \
+    --text-size=${TEXT_SIZE} \
     --filters-size=${FILTERS_SIZE} \
     --weight-decay=${WEIGHT_DECAY} \
     --embedding-dropout=${EMBEDDING_DROPOUT} \

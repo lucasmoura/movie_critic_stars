@@ -321,8 +321,6 @@ class CNNModel(ModelEstimator):
 
             # Add an extra dimension to inputs for convolutional purposes
             expanded_inputs = tf.expand_dims(inputs, -1)
-            sequence_length = tf.cast(
-                tf.shape(features['words'][0])[0], tf.int32)
 
             pooled_outputs = []
             for i, filter_size in enumerate(params['filters_size']):
@@ -338,7 +336,7 @@ class CNNModel(ModelEstimator):
 
                     max_pool = tf.layers.max_pooling2d(
                         inputs=conv,
-                        pool_size=[sequence_length - filter_size + 1, 1],
+                        pool_size=[params['text_size'] - filter_size + 1, 1],
                         strides=[1, 1],
                         padding='valid'
                     )
