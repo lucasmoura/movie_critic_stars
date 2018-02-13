@@ -67,10 +67,11 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path,
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
 
     print('Transforming reviews into list of ids ...')
-    train, validation, test = transform_all_datasets(train, validation, test, word_index)
+    train, train_all, validation, validation_all, test, test_all = transform_all_datasets(
+        train, validation, test, word_index)
 
     print('Saving datasets ...')
-    save_datasets(train, validation, test, save_datasets_path)
+    save_datasets(train_all, validation_all, test_all, save_datasets_path)
 
     print('Train dataset len: {}'.format(len(train)))
     print('Validation dataset len: {}'.format(len(validation)))
@@ -125,22 +126,24 @@ def sentence_to_id_list(sentence, word_index):
 
 def transform_sentences(reviews, word_index):
     transformed_sentences = []
+    all_sentences = []
 
     for label, review in reviews:
         review_id_list = sentence_to_id_list(review, word_index)
         size = len(review_id_list)
 
         transformed_sentences.append((review_id_list, label, size))
+        all_sentences.append((review, review_id_list, label, size))
 
-    return transformed_sentences
+    return transformed_sentences, all_sentences
 
 
 def transform_all_datasets(train, validation, test, word_index):
-    train = transform_sentences(train, word_index)
-    validation = transform_sentences(validation, word_index)
-    test = transform_sentences(test, word_index)
+    train, train_all = transform_sentences(train, word_index)
+    validation, validation_all = transform_sentences(validation, word_index)
+    test, test_all = transform_sentences(test, word_index)
 
-    return train, validation, test
+    return train, train_all, validation, validation_all, test, test_all
 
 
 def replace_unknown_words(train, validation, test, word_embedding):
