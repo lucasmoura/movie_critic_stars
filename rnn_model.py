@@ -3,7 +3,7 @@ import os
 
 import tensorflow as tf
 
-from model.estimator import get_estimator, run_estimator
+from model.estimator import EstimatorManager
 from preprocessing.dataset import load
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -162,8 +162,14 @@ def main():
     num_epochs = user_args['num_epochs']
     save_path = user_args['save_path']
 
-    estimator = get_estimator('recurrent')
-    run_estimator(estimator, model_params, pipeline_params, num_epochs, save_path)
+    estimator_manager = EstimatorManager(
+        estimator_name='recurrent',
+        model_params=model_params,
+        pipeline_params=pipeline_params,
+        num_epochs=num_epochs,
+        save_path=save_path)
+
+    estimator_manager.run_estimator()
 
 
 if __name__ == '__main__':
