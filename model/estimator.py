@@ -1,75 +1,104 @@
+import pickle
+
 import tensorflow as tf
 
 from model.input_pipeline import MovieReviewDataset
 from utils.metrics import print_metrics_score, save_model_metrics
 
 
-def get_estimator(estimator_name):
-    if estimator_name == 'bag_of_words':
-        estimator = BagOfWords()
-    elif estimator_name == 'recurrent':
-        estimator = RecurrentModel()
-    elif estimator_name == 'cnn':
-        estimator = CNNModel()
+class EstimatorManager:
+    def __init__(self, estimator_name, model_params, pipeline_params, num_epochs, save_path):
+        self.estimator_name = estimator_name
+        self.model_params = model_params
+        self.pipeline_params = pipeline_params
+        self.num_epochs = num_epochs
+        self.save_path = save_path
 
-    return estimator
+        self.get_estimator()
 
+    def get_estimator(self):
+        if self.estimator_name == 'bag_of_words':
+            self.estimator = BagOfWords()
+        elif self.estimator_name == 'recurrent':
+            self.estimator = RecurrentModel()
+        elif self.estimator_name == 'cnn':
+            self.estimator = CNNModel()
 
-def run_estimator(estimator, model_params, pipeline_params, num_epochs, save_path):
-    classifier = tf.estimator.Estimator(
-        model_fn=estimator.model_fn,
-        params=model_params
-    )
+    def get_input_pipeline(self, file_type, perform_shuffle):
+        return self.estimator.input_fn(
+            tfrecord_file=self.pipeline_params[file_type],
+            batch_size=self.pipeline_params['batch_size'],
+            perform_shuffle=perform_shuffle,
+            bucket_width=self.pipeline_params['bucket_width'],
+            num_buckets=self.pipeline_params['num_buckets'])
 
-    train_accuracies = []
-    validation_accuracies = []
+    def show_wrong_predictions(self, file_type):
+        with open(file_type, 'rb') as ft:
+            validation = pickle.load(ft)
 
-    for i in range(num_epochs):
-        print('Running epoch {}'.format(i+1))
-        classifier.train(
-            input_fn=lambda: estimator.input_fn(
-                tfrecord_file=pipeline_params['train_file'],
-                batch_size=pipeline_params['batch_size'],
-                perform_shuffle=True,
-                bucket_width=pipeline_params['bucket_width'],
-                num_buckets=pipeline_params['num_buckets'])
+        labels = [label for _, _, label, _ in validation]
+        reviews = [review for review, _, _, _ in validation]
+
+        predictions = self.classifier.predict(
+                input_fn=lambda: self.get_input_pipeline(
+                    'validation_file', False)
         )
 
-        train_result = classifier.evaluate(
-            input_fn=lambda: estimator.input_fn(
-                tfrecord_file=pipeline_params['train_file'],
-                batch_size=pipeline_params['batch_size'],
-                perform_shuffle=True,
-                bucket_width=pipeline_params['bucket_width'],
-                num_buckets=pipeline_params['num_buckets'])
+        num_predictions = 10
+        i = 0
+
+        for pred, label, review in zip(predictions, labels, reviews):
+            pred_label = pred['class']
+            if pred_label != label - 1 and i < num_predictions:
+                print("Predicted label: {}\nCorrect label: {}\n{}\n".format(
+                    pred_label, label - 1, review))
+                i += 1
+
+            if i == num_predictions:
+                break
+
+    def run_estimator(self):
+        self.classifier = tf.estimator.Estimator(
+            model_fn=self.estimator.model_fn,
+            params=self.model_params
         )
 
-        eval_result = classifier.evaluate(
-            input_fn=lambda: estimator.input_fn(
-                tfrecord_file=pipeline_params['validation_file'],
-                batch_size=pipeline_params['batch_size'],
-                perform_shuffle=False,
-                bucket_width=pipeline_params['bucket_width'],
-                num_buckets=pipeline_params['num_buckets'])
+        train_accuracies = []
+        validation_accuracies = []
+
+        for i in range(self.num_epochs):
+            print('Running epoch {}'.format(i+1))
+            self.classifier.train(
+                input_fn=lambda: self.get_input_pipeline(
+                    'train_file', True)
+            )
+
+            train_result = self.classifier.evaluate(
+                input_fn=lambda: self.get_input_pipeline(
+                    'train_file', False)
+            )
+
+            eval_result = self.classifier.evaluate(
+                input_fn=lambda: self.get_input_pipeline(
+                    'validation_file', False)
+            )
+
+            train_accuracies.append(train_result['accuracy'])
+            validation_accuracies.append(eval_result['accuracy'])
+
+            print_metrics_score(train_result, 'Train')
+            print_metrics_score(eval_result, 'Validation')
+
+        test_result = self.classifier.evaluate(
+            input_fn=lambda: self.get_input_pipeline(
+                'test_file', False)
         )
 
-        train_accuracies.append(train_result['accuracy'])
-        validation_accuracies.append(eval_result['accuracy'])
+        file_type = self.pipeline_params['validation_file'].replace('tfrecord', 'pkl')
+        self.show_wrong_predictions(file_type)
 
-        print_metrics_score(train_result, 'Train')
-        print_metrics_score(eval_result, 'Validation')
-
-    test_result = classifier.evaluate(
-        input_fn=lambda: estimator.input_fn(
-            tfrecord_file=pipeline_params['test_file'],
-            batch_size=pipeline_params['batch_size'],
-            perform_shuffle=False,
-            bucket_width=pipeline_params['bucket_width'],
-            num_buckets=pipeline_params['num_buckets'])
-    )
-
-    print('Saving model results ...')
-    save_model_metrics(test_result, train_accuracies, validation_accuracies, save_path)
+        print('Saving model results ...')
+        save_model_metrics(test_result, train_accuracies, validation_accuracies, self.save_path)
 
 
 class ModelEstimator:
@@ -148,7 +177,10 @@ class ModelEstimator:
             mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
     def model_fn(self, features, labels, mode, params):
-        labels = self.preprocess_labels(labels)
+
+        if mode != tf.estimator.ModeKeys.PREDICT:
+            labels = self.preprocess_labels(labels)
+
         params = self.set_training_params(params)
 
         logits_train = self.model(
