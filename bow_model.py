@@ -3,7 +3,7 @@ import os
 
 import tensorflow as tf
 
-from model.estimator import get_estimator, run_estimator
+from model.estimator import EstimatorManager
 from preprocessing.dataset import load
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -143,7 +143,7 @@ def main():
     num_units = user_args['num_units']
     weight_decay = user_args['weight_decay']
     lr = user_args['learning_rate']
-    show_loss = False
+    show_loss = True
 
     if show_loss:
         tf.logging.set_verbosity(tf.logging.INFO)
@@ -164,8 +164,14 @@ def main():
     num_epochs = user_args['num_epochs']
     save_path = user_args['save_path']
 
-    estimator = get_estimator('bag_of_words')
-    run_estimator(estimator, model_params, pipeline_params, num_epochs, save_path)
+    estimator_manager = EstimatorManager(
+        estimator_name='bag_of_words',
+        model_params=model_params,
+        pipeline_params=pipeline_params,
+        num_epochs=num_epochs,
+        save_path=save_path)
+
+    estimator_manager.run_estimator()
 
 
 if __name__ == '__main__':
