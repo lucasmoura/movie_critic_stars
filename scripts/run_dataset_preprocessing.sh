@@ -19,6 +19,7 @@ TEXT_SIZE=500
 
 PREPROCESSING_TYPE="cnn"
 SAVE_DATASETS_PATH="data/$PREPROCESSING_TYPE"
+REMOVE=0
 
 echo "Running preprocessing for convolutional model"
 python preprocess_dataset.py \
@@ -27,6 +28,7 @@ python preprocess_dataset.py \
     --cineclick-folder=${CINECLICK_REVIEWS_FOLDER} \
     --preprocessing-type=${PREPROCESSING_TYPE} \
     --stopwords-path=${STOPWORDS_PATH} \
+    --remove=${REMOVE} \
     --embedding-file=${FASTTEXT_FILE} \
     --embedding-path=${EMBEDDING_PATH} \
     --embedding-wordindex-path=${EMBEDDING_WORDINDEX_PATH} \
@@ -44,6 +46,7 @@ python preprocess_dataset.py \
     --cineclick-folder=${CINECLICK_REVIEWS_FOLDER} \
     --preprocessing-type=${PREPROCESSING_TYPE} \
     --stopwords-path=${STOPWORDS_PATH} \
+    --remove=${REMOVE} \
     --embedding-file=${FASTTEXT_FILE} \
     --embedding-path=${EMBEDDING_PATH} \
     --embedding-wordindex-path=${EMBEDDING_WORDINDEX_PATH} \
@@ -52,6 +55,7 @@ python preprocess_dataset.py \
 
 PREPROCESSING_TYPE="bag_of_words"
 SAVE_DATASETS_PATH="data/$PREPROCESSING_TYPE"
+REMOVE=1
 
 echo "Running preprocessing for bag of words model"
 python preprocess_dataset.py \
@@ -60,6 +64,7 @@ python preprocess_dataset.py \
     --cineclick-folder=${CINECLICK_REVIEWS_FOLDER} \
     --preprocessing-type=${PREPROCESSING_TYPE} \
     --stopwords-path=${STOPWORDS_PATH} \
+    --remove=${REMOVE} \
     --embedding-file=${FASTTEXT_FILE} \
     --embedding-path=${EMBEDDING_PATH} \
     --embedding-wordindex-path=${EMBEDDING_WORDINDEX_PATH} \
