@@ -15,6 +15,11 @@ FULL_UNDERSAMPLING_VALIDATION_FILE="data/cnn/full/undersampling/validation.tfrec
 FULL_UNDERSAMPLING_TEST_FILE="data/cnn/full/undersampling/test.tfrecord"
 FULL_UNDERSAMPLING_SAVE_PATH="data/cnn/full/undersampling/model/"
 
+FULL_OVERSAMPLING_TRAIN_FILE="data/cnn/full/oversampling/train.tfrecord"
+FULL_OVERSAMPLING_VALIDATION_FILE="data/cnn/full/oversampling/validation.tfrecord"
+FULL_OVERSAMPLING_TEST_FILE="data/cnn/full/oversampling/test.tfrecord"
+FULL_OVERSAMPLING_SAVE_PATH="data/cnn/full/oversampling/model/"
+
 OMELETE_TRAIN_FILE="data/cnn/omelete/train.tfrecord"
 OMELETE_VALIDATION_FILE="data/cnn/omelete/validation.tfrecord"
 OMELETE_TEST_FILE="data/cnn/omelete/test.tfrecord"
@@ -32,6 +37,7 @@ CINECLICK_SAVE_PATH="data/cnn/cineclick/model/"
 
 FULL_EMBEDDING_PATH="data/cnn/full/fasttext.pkl"
 FULL_UNDERSAMPLING_EMBEDDING_PATH="data/cnn/full/undersampling/fasttext.pkl"
+FULL_OVERSAMPLING_EMBEDDING_PATH="data/cnn/full/oversampling/fasttext.pkl"
 OMELETE_EMBEDDING_PATH="data/cnn/omelete/fasttext.pkl"
 CEC_EMBEDDING_PATH="data/cnn/cec/fasttext.pkl"
 CINECLICK_EMBEDDING_PATH="data/cnn/cineclick/fasttext.pkl"
@@ -39,7 +45,7 @@ CINECLICK_EMBEDDING_PATH="data/cnn/cineclick/fasttext.pkl"
 EMBEDDING_SIZE=300
 NUM_LABELS=5
 NUM_FILTERS=128
-FILTERS_SIZE="2,3,4"
+FILTERS_SIZE="3,4,5"
 TEXT_SIZE=500
 WEIGHT_DECAY=0.0001
 LEARNING_RATE=0.001
@@ -78,6 +84,27 @@ python cnn_model.py \
     --test-file=${FULL_UNDERSAMPLING_TEST_FILE} \
     --save-path=${FULL_UNDERSAMPLING_SAVE_PATH} \
     --embedding-path=${FULL_UNDERSAMPLING_EMBEDDING_PATH} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --num-labels=${NUM_LABELS} \
+    --num-filters=${NUM_FILTERS} \
+    --text-size=${TEXT_SIZE} \
+    --filters-size=${FILTERS_SIZE} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --dropout-rate=${DROPOUT_RATE} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+echo "Run full model with oversampling"
+python cnn_model.py \
+    --train-file=${FULL_OVERSAMPLING_TRAIN_FILE} \
+    --validation-file=${FULL_OVERSAMPLING_VALIDATION_FILE} \
+    --test-file=${FULL_OVERSAMPLING_TEST_FILE} \
+    --save-path=${FULL_OVERSAMPLING_SAVE_PATH} \
+    --embedding-path=${FULL_OVERSAMPLING_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
     --num-labels=${NUM_LABELS} \
     --num-filters=${NUM_FILTERS} \

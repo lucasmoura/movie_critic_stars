@@ -15,6 +15,11 @@ FULL_UNDERSAMPLING_VALIDATION_FILE="data/rnn/full/undersampling/validation.tfrec
 FULL_UNDERSAMPLING_TEST_FILE="data/rnn/full/undersampling/test.tfrecord"
 FULL_UNDERSAMPLING_SAVE_PATH="data/rnn/full/undersampling/model/"
 
+FULL_OVERSAMPLING_TRAIN_FILE="data/rnn/full/oversampling/train.tfrecord"
+FULL_OVERSAMPLING_VALIDATION_FILE="data/rnn/full/oversampling/validation.tfrecord"
+FULL_OVERSAMPLING_TEST_FILE="data/rnn/full/oversampling/test.tfrecord"
+FULL_OVERSAMPLING_SAVE_PATH="data/rnn/full/oversampling/model/"
+
 OMELETE_TRAIN_FILE="data/rnn/omelete/train.tfrecord"
 OMELETE_VALIDATION_FILE="data/rnn/omelete/validation.tfrecord"
 OMELETE_TEST_FILE="data/rnn/omelete/test.tfrecord"
@@ -32,6 +37,7 @@ CINECLICK_SAVE_PATH="data/rnn/cineclick/model/"
 
 FULL_EMBEDDING_PATH="data/rnn/full/fasttext.pkl"
 FULL_UNDERSAMPLING_EMBEDDING_PATH="data/rnn/full/undersampling/fasttext.pkl"
+FULL_OVERSAMPLING_EMBEDDING_PATH="data/rnn/full/oversampling/fasttext.pkl"
 OMELETE_EMBEDDING_PATH="data/rnn/omelete/fasttext.pkl"
 CEC_EMBEDDING_PATH="data/rnn/cec/fasttext.pkl"
 CINECLICK_EMBEDDING_PATH="data/rnn/cineclick/fasttext.pkl"
@@ -76,6 +82,26 @@ python rnn_model.py \
     --test-file=${FULL_UNDERSAMPLING_TEST_FILE} \
     --save-path=${FULL_UNDERSAMPLING_SAVE_PATH} \
     --embedding-path=${FULL_UNDERSAMPLING_EMBEDDING_PATH} \
+    --embed-size=${EMBEDDING_SIZE} \
+    --num-labels=${NUM_LABELS} \
+    --num-units=${NUM_UNITS} \
+    --weight-decay=${WEIGHT_DECAY} \
+    --embedding-dropout=${EMBEDDING_DROPOUT} \
+    --lstm-output-dropout=${LSTM_OUTPUT_DROPOUT} \
+    --lstm-variational-dropout=${LSTM_VARIATIONAL_DROPOUT} \
+    --learning-rate=${LEARNING_RATE} \
+    --batch-size=${BATCH_SIZE} \
+    --num-epochs=${NUM_EPOCHS} \
+    --bucket-width=${BUCKET_WIDTH} \
+    --num-buckets=${NUM_BUCKETS}
+
+echo "Run full model with oversampling"
+python rnn_model.py \
+    --train-file=${FULL_OVERSAMPLING_TRAIN_FILE} \
+    --validation-file=${FULL_OVERSAMPLING_VALIDATION_FILE} \
+    --test-file=${FULL_OVERSAMPLING_TEST_FILE} \
+    --save-path=${FULL_OVERSAMPLING_SAVE_PATH} \
+    --embedding-path=${FULL_OVERSAMPLING_EMBEDDING_PATH} \
     --embed-size=${EMBEDDING_SIZE} \
     --num-labels=${NUM_LABELS} \
     --num-units=${NUM_UNITS} \
