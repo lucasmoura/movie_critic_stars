@@ -24,7 +24,7 @@ def get_vocab(reviews_array):
     max_size = max([len(review) for review in reviews_array])
 
     vocabulary_processor = learn.preprocessing.VocabularyProcessor(
-        max_size, tokenizer_fn=tokenizer_fn)
+        max_size, tokenizer_fn=tokenizer_fn, min_frequency=10)
 
     vocabulary_processor.fit(reviews_array)
 
