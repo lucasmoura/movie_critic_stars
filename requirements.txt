@@ -3,3 +3,4 @@ requests
 seaborn
 Cython
 -e git+https://github.com/facebookresearch/fastText#egg=version_pkg
+imbalanced-learn

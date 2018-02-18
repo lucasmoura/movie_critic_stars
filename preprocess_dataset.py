@@ -2,9 +2,11 @@ import argparse
 import os
 import random
 
+import numpy as np
 import tensorflow as tf
 
-from collections import defaultdict
+from collections import defaultdict, Counter
+from imblearn.over_sampling import RandomOverSampler
 
 from preprocessing.dataset import MovieReviewDataset, save
 from preprocessing.text_preprocessing import get_vocab, get_preprocessing_strategy
@@ -34,8 +36,31 @@ def perform_undersampling(train_dataset):
     return undersampling_train_dataset
 
 
+def perform_oversampling(train_dataset):
+    X, y = [], []
+
+    for index, (label, review) in enumerate(train_dataset):
+        X.append(index)
+        y.append(label)
+
+    X = np.array(X).reshape(-1, 1)
+    y = np.array(y)
+    print('Original dataset shape {}'.format(Counter(y)))
+    ros = RandomOverSampler(random_state=42)
+
+    X_res, y_res = ros.fit_sample(X, y)
+    print('Ooversample dataset shape {}'.format(Counter(y_res)))
+
+    train = []
+    for review, label in zip(X_res, y_res):
+        movie_review = train_dataset[review[0]][1]
+        train.append((label, movie_review))
+
+    return train
+
+
 def full_preprocessing(train, validation, test, user_args, save_datasets_path,
-                       undersampling=False):
+                       undersampling=False, oversampling=False):
     if not os.path.exists(save_datasets_path):
         os.makedirs(save_datasets_path)
 
@@ -62,6 +87,8 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path,
 
     if undersampling:
         train = perform_undersampling(train)
+    if oversampling:
+        train = perform_oversampling(train)
 
     print('Find and replacing unknown words for reviews...')
     train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
@@ -322,6 +349,11 @@ def main():
     print('Creating full processed reviews (with undersampling) ...')
     save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full/undersampling')
     full_preprocessing(train, validation, test, user_args, save_datasets_path, undersampling=True)
+
+    print('Creating full processed reviews (with oversampling) ...')
+    save_datasets_path = os.path.join(user_args['save_datasets_path'], 'full/oversampling')
+    full_preprocessing(train, validation, test, user_args, save_datasets_path, False,
+                       oversampling=True)
 
     print('Creating Omelete preprocessed reviews')
     train = omelete_dataset.train_dataset
