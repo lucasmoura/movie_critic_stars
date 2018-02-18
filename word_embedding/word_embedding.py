@@ -70,7 +70,7 @@ class WordEmbedding:
 
         self.word_index[UNK_TOKEN] = len(self.word_index) + 1
 
-    def handle_unknown_words(self, reviews, sentence_size):
+    def handle_unknown_words(self, reviews, sentence_size, remove=False):
         processed_reviews = []
         dynamic_sentence_size = False
 
@@ -85,7 +85,7 @@ class WordEmbedding:
 
             for index, word in enumerate(words[:sentence_size]):
                 if word not in self.word_index:
-                    words[index] = UNK_TOKEN
+                    words[index] = '' if remove else UNK_TOKEN
 
             review = ' '.join(words)
             processed_reviews.append((label, review))

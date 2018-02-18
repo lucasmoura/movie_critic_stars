@@ -91,7 +91,8 @@ def full_preprocessing(train, validation, test, user_args, save_datasets_path,
         train = perform_oversampling(train)
 
     print('Find and replacing unknown words for reviews...')
-    train, validation, test = replace_unknown_words(train, validation, test, word_embedding)
+    remove = user_args['remove']
+    train, validation, test = replace_unknown_words(train, validation, test, word_embedding, remove)
 
     print('Transforming reviews into list of ids ...')
     train, train_all, validation, validation_all, test, test_all = transform_all_datasets(
@@ -173,10 +174,10 @@ def transform_all_datasets(train, validation, test, word_index):
     return train, train_all, validation, validation_all, test, test_all
 
 
-def replace_unknown_words(train, validation, test, word_embedding):
-    train = word_embedding.handle_unknown_words(train, sentence_size=None)
-    validation = word_embedding.handle_unknown_words(validation, sentence_size=None)
-    test = word_embedding.handle_unknown_words(test, sentence_size=None)
+def replace_unknown_words(train, validation, test, word_embedding, remove):
+    train = word_embedding.handle_unknown_words(train, None, remove)
+    validation = word_embedding.handle_unknown_words(validation, None, remove)
+    test = word_embedding.handle_unknown_words(test, None, remove)
 
     return train, validation, test
 
@@ -260,6 +261,12 @@ def create_argument_parser():
                         help='The path of the stop words file',
                         required=True)
 
+    parser.add_argument('-r',
+                        '--remove',
+                        type=int,
+                        help='If instead of using an unknown token to represent unknown words, we just remove them from the sentence',  # noqa
+                        required=True)
+
     parser.add_argument('-ef',
                         '--embedding-file',
                         type=str,
@@ -296,6 +303,8 @@ def create_argument_parser():
 def main():
     parser = create_argument_parser()
     user_args = vars(parser.parse_args())
+
+    user_args['remove'] = True if user_args['remove'] == 1 else False
 
     omelete_folder = user_args['omelete_folder']
     omelete_dataset = MovieReviewDataset(
